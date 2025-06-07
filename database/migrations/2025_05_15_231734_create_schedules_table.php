@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
+
+class CreateSchedulesTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('schedules', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('section_id')->constrained('course_sections');
+            $table->string('day_of_week');
+            $table->date('start_time');
+            $table->date('end_time');
+            $table->boolean('is_recurring')->default(true);
+            $table->date('specific_date')->nullable();
+            $table->timestamps();                
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('schedules');
+    }
+}
