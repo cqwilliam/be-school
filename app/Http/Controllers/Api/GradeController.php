@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Grade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -10,11 +11,16 @@ use Illuminate\Validation\Rule;
 
 class GradeController extends Controller
 {
+    use RoleCheck;
     /**
      * Display a listing of the grades.
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $grades = Grade::all();
         return response()->json([
             'success' => true,
@@ -28,6 +34,10 @@ class GradeController extends Controller
      */
     public function store(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+            return $response;
+        }
+
         $validator = Validator::make($request->all(), [
             'evaluation_id' => 'required|exists:evaluations,id',
             'student_id' => 'required|exists:students,id',
@@ -62,8 +72,12 @@ class GradeController extends Controller
     /**
      * Display the specified grade.
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $grades = Grade::find($id);
 
         if (!$grades) {
@@ -84,6 +98,10 @@ class GradeController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador','Docente'])) {
+            return $response;
+        }
+        
         $grade = Grade::find($id);
 
         if (!$grade) {
@@ -127,8 +145,12 @@ class GradeController extends Controller
     /**
      * Remove the specified grade.
      */
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $grade = Grade::find($id);
 
         if (!$grade) {

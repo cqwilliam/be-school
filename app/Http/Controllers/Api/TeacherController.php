@@ -3,15 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class TeacherController extends Controller
 {
+    use RoleCheck;
     // List all teachers
-    public function index()
+    public function index(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $teachers = Teacher::all();
 
         return response()->json([
@@ -23,6 +29,10 @@ class TeacherController extends Controller
     // Store a new teacher
     public function store(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id|unique:teachers,user_id',
             'specialty' => 'nullable|string|max:100',
@@ -46,8 +56,12 @@ class TeacherController extends Controller
     }
 
     // Show a specific teacher
-    public function show($id)
+    public function show(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $teacher = Teacher::find($id);
 
         if (!$teacher) {
@@ -66,6 +80,10 @@ class TeacherController extends Controller
     // Update a teacher
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $teacher = Teacher::find($id);
 
         if (!$teacher) {
@@ -98,8 +116,11 @@ class TeacherController extends Controller
     }
 
     // Delete a teacher
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
         $teacher = Teacher::find($id);
 
         if (!$teacher) {

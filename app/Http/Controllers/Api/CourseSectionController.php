@@ -3,15 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\CourseSection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class CourseSectionController extends Controller
 {
+    use  RoleCheck;
 
-    public function index()
+    public function index(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
+            return $response;
+        }
+        
         $couseSection = CourseSection::all();
         return response()->json([
             'success' => true,
@@ -21,6 +27,10 @@ class CourseSectionController extends Controller
 
     public function store(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $validator = Validator::make($request->all(), [
             'code' => 'required|string|max:20',
             'course_id' => 'required|exists:courses,id',
@@ -34,7 +44,7 @@ class CourseSectionController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-
+        
         $courseSection = CourseSection::create([
             'code' => $request->code,
             'course_id' => $request->course_id,
@@ -48,8 +58,12 @@ class CourseSectionController extends Controller
         ], 201);
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $courseSection = CourseSection::find($id);
 
         if (!$courseSection) {
@@ -67,6 +81,10 @@ class CourseSectionController extends Controller
 
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $courseSection = CourseSection::find($id);
 
         if (!$courseSection) {
@@ -101,10 +119,14 @@ class CourseSectionController extends Controller
     }
 
     // Eliminar un course section con manejo de excepción
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $couseSection = CourseSection::find($id);
-        
+
         if (!$couseSection) {
             return response()->json([
                 'success' => false,

@@ -3,19 +3,25 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\ClassSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class ClassSessionController extends Controller
 {
+    use RoleCheck;
     /**
      * Display a listing of the class sessions.
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
+            return $response;
+        }
+
         $classSessions = ClassSession::all();
-        
+
         return response()->json([
             'success' => true,
             'data' => $classSessions
@@ -27,6 +33,10 @@ class ClassSessionController extends Controller
      */
     public function store(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $validator = Validator::make($request->all(), [
             'section_id' => 'required|exists:course_sections,id',
             'topic' => 'nullable|string',
@@ -42,7 +52,7 @@ class ClassSessionController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-
+        
         $classSession = ClassSession::create([
             'section_id' => $request->section_id,
             'topic' => $request->topic,
@@ -61,8 +71,12 @@ class ClassSessionController extends Controller
     /**
      * Display the specified class session.
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $classSession = ClassSession::find($id);
 
         if (!$classSession) {
@@ -83,6 +97,10 @@ class ClassSessionController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $classSession = ClassSession::find($id);
 
         if (!$classSession) {
@@ -126,10 +144,14 @@ class ClassSessionController extends Controller
     /**
      * Remove the specified class session.
      */
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $classSession = ClassSession::find($id);
-        
+
         if (!$classSession) {
             return response()->json([
                 'success' => false,

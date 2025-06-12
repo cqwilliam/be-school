@@ -42,22 +42,6 @@ class CourseMaterial extends Model
     }
 
     /**
-     * La sección del curso a la que pertenece este material.
-     */
-    public function section()
-    {
-        return $this->belongsTo(CourseSection::class, 'section_id');
-    }
-
-    /**
-     * El docente que publicó este material.
-     */
-    public function publishedBy()
-    {
-        return $this->belongsTo(User::class, 'published_by');
-    }
-
-    /**
      * Reglas de validación para CourseMaterial.
      */
     public static function rules(bool $updating = false): array
@@ -74,5 +58,15 @@ class CourseMaterial extends Model
 
 
         return $rules;
+    }
+
+    public function courseSection()
+    {
+        return $this->belongsTo(CourseSection::class);
+    }
+
+    public function publishedBy()
+    {
+        return $this->belongsTo(User::class, 'published_by');
     }
 }

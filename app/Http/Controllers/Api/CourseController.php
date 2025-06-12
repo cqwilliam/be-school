@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -11,11 +12,16 @@ use Illuminate\Support\Facades\Validator;
 
 class CourseController extends Controller
 {
+    use RoleCheck;
     /**
      * List all courses with their academic period.
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $courses = Course::all();
         return response()->json([
             'success' => true,
@@ -29,6 +35,10 @@ class CourseController extends Controller
      */
     public function store(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $validator = Validator::make($request->all(), [
             'code' => 'required|string|max:20|unique:courses,code',
             'name' => 'required|string|max:100',
@@ -61,8 +71,12 @@ class CourseController extends Controller
     /**
      * Show a specific course with its relations.
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $course = Course::find($id);
 
         if (!$course) {
@@ -83,6 +97,10 @@ class CourseController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $course = Course::find($id);
 
         if (!$course) {
@@ -124,8 +142,12 @@ class CourseController extends Controller
     /**
      * Delete a course.
      */
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $course = Course::find($id);
 
         if (!$course) {

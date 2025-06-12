@@ -3,14 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class ScheduleController extends Controller
 {
-    public function index()
+    use RoleCheck;
+
+    public function index(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $schedules = Schedule::all();
         return response()->json([
             'success' => true,
@@ -20,6 +27,10 @@ class ScheduleController extends Controller
 
     public function store(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $validator = Validator::make($request->all(), [
             'section_id' => 'required|exists:course_sections,id',
             'day_of_week' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
@@ -51,8 +62,12 @@ class ScheduleController extends Controller
         ], 201);
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $schedule = Schedule::with('section')->find($id);
 
         if (!$schedule) {
@@ -72,6 +87,10 @@ class ScheduleController extends Controller
     // Actualizar horario
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $schedule = Schedule::find($id);
 
         if (!$schedule) {
@@ -113,8 +132,12 @@ class ScheduleController extends Controller
     }
 
     // Eliminar horario
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $schedule = Schedule::find($id);
 
         if (!$schedule) {

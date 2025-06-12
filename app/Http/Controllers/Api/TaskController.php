@@ -3,19 +3,25 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class TaskController extends Controller
 {
+    use RoleCheck;
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+            return $response;
+        }
+
         $tasks = Task::all();
         return response()->json([
             'success' => true,
@@ -31,6 +37,10 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+            return $response;
+        }
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -48,7 +58,6 @@ class TaskController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'completed' => $request->completed ?? false,
-            'user_id' => auth()->id()
         ]);
 
         return response()->json([
@@ -63,10 +72,14 @@ class TaskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $task = Task::find($id);
-        
+
         if (!$task) {
             return response()->json([
                 'success' => false,
@@ -89,8 +102,12 @@ class TaskController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $task = Task::find($id);
-        
+
         if (!$task) {
             return response()->json([
                 'success' => false,
@@ -125,10 +142,14 @@ class TaskController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $task = Task::find($id);
-        
+
         if (!$task) {
             return response()->json([
                 'success' => false,

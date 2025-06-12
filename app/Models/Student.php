@@ -35,8 +35,7 @@ class Student extends Model
      */
     public function guardians(): BelongsToMany
     {
-        return $this->belongsToMany(Guardian::class, 'students_guardians')
-                    ->withPivot('is_primary');
+        return $this->belongsToMany(Guardian::class, 'students_guardians');
     }
 
     /**
@@ -47,6 +46,10 @@ class Student extends Model
         return $this->hasMany(Enrollment::class);
     }
 
+    public function sections()
+    {
+        return $this->belongsToMany(CourseSection::class, 'enrollments');
+    }
     /**
      * Get the grades received by the student.
      */

@@ -3,18 +3,23 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Guardian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class GuardianController extends Controller
 {
+    use RoleCheck;
     /**
      * Display a listing of guardians.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //$guardians = Guardian::with('students')->get();
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $guardians = Guardian::all();
 
         return response()->json([
@@ -28,6 +33,10 @@ class GuardianController extends Controller
      */
     public function store(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id|unique:guardians,user_id',
         ]);
@@ -38,9 +47,9 @@ class GuardianController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-
+        
         $guardian = Guardian::create([
-            'user_id' => $request->user_id,
+            'user_id' => $request->user_id->id
         ]);
 
         return response()->json([
@@ -53,8 +62,12 @@ class GuardianController extends Controller
     /**
      * Display the specified guardian.
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $guardian = Guardian::find($id);
 
         if (!$guardian) {
@@ -75,6 +88,10 @@ class GuardianController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $guardian = Guardian::find($id);
 
         if (!$guardian) {
@@ -109,8 +126,12 @@ class GuardianController extends Controller
     /**
      * Remove the specified guardian.
      */
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $guardian = Guardian::find($id);
 
         if (!$guardian) {

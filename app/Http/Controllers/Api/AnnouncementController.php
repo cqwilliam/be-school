@@ -3,16 +3,20 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Announcement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class AnnouncementController extends Controller
 {
+    use RoleCheck;
 
-
-    public function index()
+    public function index(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
         $announcements = Announcement::all();
         return response()->json([
             'success' => true,
@@ -23,6 +27,10 @@ class AnnouncementController extends Controller
 
     public function store(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'content' => 'required|string',
@@ -31,7 +39,7 @@ class AnnouncementController extends Controller
             'published_at' => 'required|date',
             'published_by' => 'required|exists:users,id',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -54,8 +62,12 @@ class AnnouncementController extends Controller
         ], 201);
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $announcement = Announcement::find($id);
 
         if (!$announcement) {
@@ -73,6 +85,10 @@ class AnnouncementController extends Controller
 
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+            return $response;
+        }
+
         $announcement = Announcement::find($id);
 
         if (!$announcement) {
@@ -113,8 +129,12 @@ class AnnouncementController extends Controller
         ]);
     }
 
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+            return $response;
+        }
+
         $announcement = Announcement::find($id);
 
         if (!$announcement) {

@@ -48,15 +48,4 @@ class AssignmentSubmission extends Model
     {
         return $this->belongsTo(User::class, 'graded_by');
     }
-    
-    public function scopeForAssignment($query, $assignmentId)
-    {
-        return $query->where('assignment_id', $assignmentId);
-    }
-
-    public function scopeForStudent($query, $studentId)
-    {
-        return $query->where('student_id', $studentId);
-    }
-
 }

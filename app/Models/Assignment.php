@@ -21,24 +21,18 @@ class Assignment extends Model
     /**
      * La sección del curso a la que pertenece esta tarea.
      */
-    public function section()
+    public function courseSection()
     {
-        return $this->belongsTo(CourseSection::class, 'section_id');
+        return $this->belongsTo(CourseSection::class);
     }
 
-    /**
-     * Las entregas realizadas por los estudiantes para esta tarea.
-     */
-    public function submissions()
-    {
-        return $this->hasMany(AssignmentSubmission::class);
-    }
-
-    /**
-     * El docente que publicó esta tarea.
-     */
     public function publishedBy()
     {
         return $this->belongsTo(User::class, 'published_by');
+    }
+
+    public function submissions()
+    {
+        return $this->hasMany(AssignmentSubmission::class);
     }
 }

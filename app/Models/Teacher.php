@@ -28,8 +28,7 @@ class Teacher extends Model
      */
     public function sections()
     {
-        return $this->belongsToMany(CourseSection::class, 'teacher_section', 'teacher_id', 'section_id')
-                    ->withPivot('is_primary');
+        return $this->belongsToMany(CourseSection::class, 'teacher_sections');
     }
 
     /**

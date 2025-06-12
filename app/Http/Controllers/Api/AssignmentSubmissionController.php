@@ -4,14 +4,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\AssignmentSubmission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class AssignmentSubmissionController extends Controller
 {
-    public function index()
+    use RoleCheck;
+    
+    public function index(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
+            return $response;
+        }
+
         $submissions = AssignmentSubmission::all();
         return response()->json([
             'success' => true,
@@ -21,6 +28,10 @@ class AssignmentSubmissionController extends Controller
 
     public function store(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $validator = Validator::make($request->all(), [
             'assignment_id' => 'required|exists:assignments,id',
             'student_id' => 'required|exists:students,id',
@@ -38,7 +49,7 @@ class AssignmentSubmissionController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-
+        
         $submissions = AssignmentSubmission::create([
             'assignment_id' => $request->assignment_id,
             'student_id' => $request->student_id,
@@ -56,8 +67,12 @@ class AssignmentSubmissionController extends Controller
         ], 201);
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $submissions = AssignmentSubmission::find($id);
 
         if (!$submissions) {
@@ -75,6 +90,10 @@ class AssignmentSubmissionController extends Controller
 
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $submission = AssignmentSubmission::find($id);
 
         if (!$submission) {
@@ -119,8 +138,12 @@ class AssignmentSubmissionController extends Controller
         ]);
     }
 
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $submission = AssignmentSubmission::find($id);
 
         if (!$submission) {

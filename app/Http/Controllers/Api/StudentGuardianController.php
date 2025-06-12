@@ -3,19 +3,28 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\StudentGuardian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class StudentGuardianController extends Controller
 {
+    use RoleCheck;
     /**
      * Mostrar todas las relaciones estudiante-apoderado.
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $relations = StudentGuardian::all();
-        return response()->json($relations);
+        return response()->json([
+            'success' => true,
+            'data' => $relations
+        ]);
     }
 
     /**
@@ -23,7 +32,11 @@ class StudentGuardianController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(),[
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
+        $validator = Validator::make($request->all(), [
             'student_id' => 'required|exists:students,id',
             'guardian_id' => 'required|exists:guardians,id',
             'relationship' => 'nullable|string|max:100',
@@ -51,10 +64,14 @@ class StudentGuardianController extends Controller
     /**
      * Mostrar una relación específica.
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $student_guardian = StudentGuardian::find($id);
-        
+
         if (!$student_guardian) {
             return response()->json([
                 'success' => false,
@@ -73,6 +90,10 @@ class StudentGuardianController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $relation = StudentGuardian::findOrFail($id);
 
         $validated = $request->validate([
@@ -88,10 +109,14 @@ class StudentGuardianController extends Controller
     /**
      * Eliminar una relación.
      */
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $student_guardian = StudentGuardian::find($id);
-        
+
         if (!$student_guardian) {
             return response()->json([
                 'success' => false,

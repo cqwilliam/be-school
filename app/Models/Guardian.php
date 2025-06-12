@@ -16,8 +16,7 @@ class Guardian extends Model
      */
     public function students()
     {
-        return $this->belongsToMany(Student::class, 'students_guardians')
-                    ->withPivot('is_primary');
+        return $this->belongsToMany(Student::class, 'students_guardians');
     }
     /**
      * Get the user record associated with the guardian.

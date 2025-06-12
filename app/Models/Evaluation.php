@@ -41,14 +41,6 @@ class Evaluation extends Model
     }
 
     /**
-     * Scope to get upcoming evaluations.
-     */
-    public function scopeUpcoming($query)
-    {
-        return $query->where('due_date', '>=', now())->orderBy('due_date');
-    }
-
-    /**
      * Get the section this evaluation belongs to.
      */
     public function section()
@@ -78,5 +70,10 @@ class Evaluation extends Model
     public function grades()
     {
         return $this->hasMany(Grade::class);
+    }
+
+    public function courseSection()
+    {
+        return $this->belongsTo(CourseSection::class);
     }
 }

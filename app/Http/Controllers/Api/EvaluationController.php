@@ -3,14 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Evaluation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class EvaluationController extends Controller
 {
-    public function index()
+    use RoleCheck;
+
+    public function index(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador','Docente', 'Estudiante'])) {
+            return $response;
+        }
+
         $evaluations = Evaluation::all();
         return response()->json([
             'success' => true,
@@ -20,6 +27,10 @@ class EvaluationController extends Controller
 
     public function store(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+            return $response;
+        }
+
         $validator = Validator::make($request->all(), [
             'section_id' => 'required|exists:course_sections,id',
             'evaluation_type_id' => 'required|exists:evaluation_types,id',
@@ -30,7 +41,7 @@ class EvaluationController extends Controller
             'date' => 'nullable|date',
             'due_date' => 'nullable|date|after_or_equal:date',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -55,8 +66,12 @@ class EvaluationController extends Controller
         ], 201);
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $evaluation = Evaluation::find($id);
 
         if (!$evaluation) {
@@ -75,6 +90,10 @@ class EvaluationController extends Controller
     // Actualizar una evaluación
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+            return $response;
+        }
+
         $evaluation = Evaluation::find($id);
 
         if (!$evaluation) {
@@ -119,8 +138,12 @@ class EvaluationController extends Controller
     }
 
     // Eliminar una evaluación
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $evaluation = Evaluation::find($id);
 
         if (!$evaluation) {

@@ -29,6 +29,9 @@ class Schedule extends Model
     {
         return $this->belongsTo(CourseSection::class);
     }
-
     
+    public function courseSection()
+    {
+        return $this->belongsTo(CourseSection::class);
+    }
 }

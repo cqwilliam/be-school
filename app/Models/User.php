@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
@@ -30,7 +31,7 @@ class User extends Authenticatable
         'last_sign_in' => 'datetime',
         'birth_date' => 'date',
     ];
-    
+
     protected $hidden = [
         'password',
         'remember_token',
@@ -38,8 +39,9 @@ class User extends Authenticatable
 
     protected $appends = [
         'full_name',
+        'role_name',
+        'age_name',
     ];
-
 
     // === RELACIONES ===
 
@@ -47,7 +49,16 @@ class User extends Authenticatable
     {
         return "{$this->first_name} {$this->last_name}";
     }
-    
+    public function getRoleNameAttribute()
+    {
+        return $this->role ? $this->role->name : null;
+    }
+    public function getAgeNameAttribute()
+    {
+        return Carbon::parse($this->birth_date)->age;
+    }
+
+
     // Rol
     public function role()
     {
@@ -66,6 +77,11 @@ class User extends Authenticatable
         return $this->hasOne(Teacher::class);
     }
 
+    public function guardian()
+    {
+        return $this->hasOne(Guardian::class);
+    }
+
     // Publicaciones de anuncios
     public function announcements()
     {
@@ -73,7 +89,7 @@ class User extends Authenticatable
     }
 
     // Publicaciones de tareas
-    public function assignmentsPublished()
+    public function assignments()
     {
         return $this->hasMany(Assignment::class, 'published_by');
     }
@@ -84,16 +100,9 @@ class User extends Authenticatable
         return $this->hasMany(CourseMaterial::class, 'published_by');
     }
 
-    // Asistencia registrada
-    public function attendanceRecorded()
+    public function classSessions()
     {
-        return $this->hasMany(Attendance::class, 'recorded_by');
-    }
-
-    // Calificaciones realizadas si es docente
-    public function gradesGiven()
-    {
-        return $this->hasMany(Grade::class, 'graded_by');
+        return $this->hasMany(ClassSession::class, 'created_by');
     }
 
     // Mensajes enviados
@@ -106,5 +115,20 @@ class User extends Authenticatable
     public function messagesReceived()
     {
         return $this->belongsToMany(Message::class, 'message_recipients', 'recipient_id', 'message_id');
+    }
+
+    public function grades()
+    {
+        return $this->hasMany(Grade::class, 'graded_by');
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class, 'recorded_by');
+    }
+
+    public function assignmentSubmissions()
+    {
+        return $this->hasMany(AssignmentSubmission::class, 'graded_by');
     }
 }

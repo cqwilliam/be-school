@@ -23,53 +23,40 @@ use App\Http\Controllers\Api\StudentGuardianController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\ScheduleController;
 use App\Http\Controllers\Api\AssignmentSubmissionController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\MessageController;
+use App\Http\Middleware\JWTMiddleware;
+use Illuminate\Http\Request;
 
-// Public authentication routes
-// Route::post('/login', [AuthController::class, 'login'])->name('login');
-// Route::post('/register', [AuthController::class, 'register']);
+Route::post('/sign-in', [AuthController::class, 'sign_in'])->name('sign_in');
 
-// Protected routes
-// Route::middleware('auth:sanctum')->group(function () {
-// Route::get('/user', function (Request $request) {
-// return $request->user();
-// });
-
-// Ruta para obtener todos los usuarios
-// Route::get('/users', function (Request $request) {
-//     $users = User::select('id', 'first_name', 'last_name', 'email', 'created_at')->get();
-//     return response()->json($users);
-// });
-
-//Route::post('/logout', [AuthController::class, 'logout']);
-
-
-// Your existing protected routes
-// Route::apiResource('messages', MessageController::class);
-//Route::patch('messages/{id}/mark-as-read', [MessageController::class, 'markAsRead']);
-// });
-
-// Your existing routes (you may want to protect some of these too)
-Route::apiResource('roles', RoleController::class);
-Route::apiResource('users', UserController::class);
-Route::apiResource('students', StudentController::class);
-Route::apiResource('teachers', TeacherController::class);
-Route::apiResource('guardians', GuardianController::class);
-Route::apiResource('student-guardians', StudentGuardianController::class);
-Route::apiResource('academic-periods', AcademicPeriodController::class);
-Route::apiResource('courses', CourseController::class);
-Route::apiResource('course-sections', CourseSectionController::class);
-Route::apiResource('teacher-sections', TeacherSectionController::class);
-Route::apiResource('enrollments', EnrollmentController::class);
-Route::apiResource('schedules', ScheduleController::class);
-Route::apiResource('evaluation-types', EvaluationTypeController::class);
-Route::apiResource('evaluations', EvaluationController::class);
-Route::apiResource('grades', GradeController::class);
-Route::apiResource('class-sessions', ClassSessionController::class);
-Route::apiResource('attendances', AttendanceController::class);
-Route::apiResource('assignments', AssignmentController::class);
-Route::apiResource('assignment_submissions', AssignmentSubmissionController::class);
-Route::apiResource('course-materials', CourseMaterialController::class);
-Route::apiResource('tasks', TaskController::class);
-Route::apiResource('announcements', AnnouncementController::class);
-Route::apiResource('messages', MessageController::class);
+Route::middleware(JWTMiddleware::class)->group(function () {
+    Route::get('/current-user', function (Request $request) {
+        return response()->json($request->auth_user);
+    });
+    
+    Route::put('/users/{id}', [UserController::class, 'update']);
+    Route::apiResource('roles', RoleController::class);
+    Route::apiResource('users', UserController::class);
+    Route::apiResource('students', StudentController::class);
+    Route::apiResource('teachers', TeacherController::class);
+    Route::apiResource('guardians', GuardianController::class);
+    Route::apiResource('student-guardians', StudentGuardianController::class);
+    Route::apiResource('academic-periods', AcademicPeriodController::class);
+    Route::apiResource('courses', CourseController::class);
+    Route::apiResource('course-sections', CourseSectionController::class);
+    Route::apiResource('teacher-sections', TeacherSectionController::class);
+    Route::apiResource('enrollments', EnrollmentController::class);
+    Route::apiResource('schedules', ScheduleController::class);
+    Route::apiResource('evaluation-types', EvaluationTypeController::class);
+    Route::apiResource('evaluations', EvaluationController::class);
+    Route::apiResource('grades', GradeController::class);
+    Route::apiResource('class-sessions', ClassSessionController::class);
+    Route::apiResource('attendances', AttendanceController::class);
+    Route::apiResource('assignments', AssignmentController::class);
+    Route::apiResource('assignment_submissions', AssignmentSubmissionController::class);
+    Route::apiResource('course-materials', CourseMaterialController::class);
+    Route::apiResource('announcements', AnnouncementController::class);
+    Route::apiResource('messages', MessageController::class);
+    Route::apiResource('tasks', TaskController::class);
+});

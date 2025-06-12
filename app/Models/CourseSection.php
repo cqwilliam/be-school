@@ -37,8 +37,12 @@ class CourseSection extends Model
      */
     public function teachers()
     {
-        return $this->belongsToMany(Teacher::class, 'teacher_section', 'section_id', 'teacher_id')
-                    ->withPivot('is_primary');
+        return $this->belongsToMany(Teacher::class, 'teacher_sections');
+    }
+
+    public function students()
+    {
+        return $this->belongsToMany(Student::class, 'enrollments');
     }
 
     /**
@@ -47,6 +51,11 @@ class CourseSection extends Model
     public function schedules()
     {
         return $this->hasMany(Schedule::class, 'section_id');
+    }
+
+    public function evaluations()
+    {
+        return $this->hasMany(Evaluation::class);
     }
 
     /**

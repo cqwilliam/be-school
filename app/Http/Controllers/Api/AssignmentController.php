@@ -4,14 +4,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Assignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class AssignmentController extends Controller
 {
-    public function index()
+    use RoleCheck;
+
+    public function index(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
+            return $response;
+        }
+
         $assignments = Assignment::all();
         return response()->json([
             'success' => true,
@@ -22,6 +29,10 @@ class AssignmentController extends Controller
     // Crear una nueva tarea
     public function store(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $validator = Validator::make($request->all(), [
             'section_id' => 'required|exists:course_sections,id',
             'title' => 'required|string|max:100',
@@ -37,6 +48,7 @@ class AssignmentController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
+
 
         $assignments = Assignment::create([
             'section_id' => $request->section_id,
@@ -54,10 +66,14 @@ class AssignmentController extends Controller
     }
 
     // Mostrar una tarea específica
-    public function show($id)
+    public function show($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $assignment = Assignment::find($id);
-        
+
         if (!$assignment) {
             return response()->json([
                 'success' => false,
@@ -74,8 +90,12 @@ class AssignmentController extends Controller
     // Actualizar una tarea
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $assignment = Assignment::find($id);
-        
+
         if (!$assignment) {
             return response()->json([
                 'success' => false,
@@ -113,10 +133,14 @@ class AssignmentController extends Controller
     }
 
     // Eliminar una tarea
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $assignment = Assignment::find($id);
-        
+
         if (!$assignment) {
             return response()->json([
                 'success' => false,

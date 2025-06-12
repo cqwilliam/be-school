@@ -3,14 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Enrollment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class EnrollmentController extends Controller
 {
-    public function index()
+    use RoleCheck;
+    
+    public function index(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $enrollments = Enrollment::all();
         return response()->json([
             'success' => true,
@@ -20,6 +27,10 @@ class EnrollmentController extends Controller
 
     public function store(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $validator = Validator::make($request->all(), [
             'student_id' => 'required|exists:students,id',
             'section_id' => 'required|exists:course_sections,id',
@@ -49,8 +60,12 @@ class EnrollmentController extends Controller
         ], 201);
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $enrollment = Enrollment::find($id);
 
         if (!$enrollment) {
@@ -69,6 +84,10 @@ class EnrollmentController extends Controller
     // Actualizar inscripción
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $enrollment = Enrollment::find($id);
 
         if (!$enrollment) {
@@ -108,10 +127,14 @@ class EnrollmentController extends Controller
     }
 
     // Eliminar inscripción
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $enrollment = Enrollment::find($id);
-        
+
         if (!$enrollment) {
             return response()->json([
                 'success' => false,

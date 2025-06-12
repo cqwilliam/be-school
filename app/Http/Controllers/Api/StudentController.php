@@ -3,17 +3,23 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
+    use RoleCheck;
     /**
      * Display a listing of all students.
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $students = Student::all();
         //$student = Student::with('user')->get();
 
@@ -28,6 +34,10 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id|unique:students,user_id',
             'grade' => 'required|string|max:20',
@@ -57,8 +67,12 @@ class StudentController extends Controller
     /**
      * Display the specified student.
      */
-    public function show($id)
+    public function show($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $student = Student::find($id);
 
         if (!$student) {
@@ -79,6 +93,10 @@ class StudentController extends Controller
      */
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $student = Student::find($id);
 
         if (!$student) {
@@ -113,8 +131,12 @@ class StudentController extends Controller
     /**
      * Remove the specified student from storage.
      */
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
+            return $response;
+        }
+
         $student = Student::find($id);
 
         if (!$student) {
@@ -131,8 +153,4 @@ class StudentController extends Controller
             'message' => 'Student deleted successfully'
         ]);
     }
-
-    /**
-     * Assign a guardian to a student.
-     */
 }
