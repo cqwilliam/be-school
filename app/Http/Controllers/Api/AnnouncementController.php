@@ -36,7 +36,6 @@ class AnnouncementController extends Controller
             'content' => 'required|string',
             'target' => 'required|string',
             'section_id' => 'nullable|exists:course_sections,id',
-            'published_at' => 'required|date',
             'published_by' => 'required|exists:users,id',
         ]);
 
@@ -52,7 +51,6 @@ class AnnouncementController extends Controller
             'content' => $request->content,
             'target' => $request->target,
             'section_id' => $request->section_id,
-            'published_at' => $request->published_at,
             'published_by' => $request->published_by,
         ]);
 
@@ -103,7 +101,6 @@ class AnnouncementController extends Controller
             'content' => 'string',
             'target' => 'string',
             'section_id' => 'exists:course_sections,id',
-            'published_at' => 'date',
             'published_by' => 'exists:users,id',
         ]);
 
@@ -119,7 +116,6 @@ class AnnouncementController extends Controller
             'content',
             'target',
             'section_id',
-            'published_at',
             'published_by',
         ]));
 

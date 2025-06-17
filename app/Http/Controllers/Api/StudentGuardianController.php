@@ -75,7 +75,7 @@ class StudentGuardianController extends Controller
         if (!$student_guardian) {
             return response()->json([
                 'success' => false,
-                'message' => 'Task not found'
+                'message' => 'Student Guardian not found'
             ], 404);
         }
 
@@ -94,16 +94,38 @@ class StudentGuardianController extends Controller
             return $response;
         }
 
-        $relation = StudentGuardian::findOrFail($id);
+        $student_guardian = StudentGuardian::find($id);
 
-        $validated = $request->validate([
+        if (!$student_guardian) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student Guardian not found'
+            ], 404);
+        }
+        $validator = Validator::make($request->all(), [
+            'student_id' => 'required|exists:students,id',
+            'guardian_id' => 'required|exists:guardians,id',
             'relationship' => 'nullable|string|max:100',
-            'is_primary' => 'boolean',
         ]);
 
-        $relation->update($validated);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        $student_guardian->update([
+            'student_id' => $request->student_id,
+            'guardian_id' => $request->guardian_id,
+            'relationship' => $request->relationship,
+        ]);
 
-        return response()->json($relation);
+        return response()->json([
+            'success' => true,
+            'message' => 'Student Guardian updated successfully',
+            'data' => $student_guardian
+        ], 200);
     }
 
     /**
@@ -120,7 +142,7 @@ class StudentGuardianController extends Controller
         if (!$student_guardian) {
             return response()->json([
                 'success' => false,
-                'message' => 'Task not found'
+                'message' => 'Student Guardian not found'
             ], 404);
         }
 
@@ -128,7 +150,7 @@ class StudentGuardianController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Task deleted successfully'
+            'message' => 'Student Guardian deleted successfully'
         ]);
     }
 }

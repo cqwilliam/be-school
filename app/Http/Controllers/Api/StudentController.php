@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -51,16 +52,20 @@ class StudentController extends Controller
             ], 422);
         }
 
-        $student = Student::create([
-            'user_id' => $request->user_id,
-            'grade' => $request->grade,
-            'section' => $request->section,
-        ]);
+        $user = User::find($request->user_id);
+        if ($user->role_id !== 2) { // 2 es el rol de Estudiante
+            return response()->json([
+                'success' => false,
+                'message' => 'User is not a student'
+            ], 422);
+        }
+
+        $student = Student::create($validator->validated());
 
         return response()->json([
             'success' => true,
             'message' => 'Student created successfully',
-            'data' => $student->load('user')
+            'data' => $student
         ], 201);
     }
 
@@ -151,6 +156,26 @@ class StudentController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Student deleted successfully'
+        ]);
+    }
+    public function getByUserId($user_id, Request $request)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
+        $student = Student::with('user')->where('user_id', $user_id)->first();
+
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Estudiante no encontrado'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $student
         ]);
     }
 }

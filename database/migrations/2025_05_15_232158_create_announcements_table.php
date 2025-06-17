@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 class CreateAnnouncementsTable extends Migration
 {
@@ -20,7 +19,6 @@ class CreateAnnouncementsTable extends Migration
             $table->text('content');
             $table->string('target');
             $table->foreignId('section_id')->nullable()->constrained('course_sections')->nullOnDelete();
-            $table->timestamp('published_at')->useCurrent();
             $table->foreignId('published_by')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

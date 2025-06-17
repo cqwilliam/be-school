@@ -41,8 +41,8 @@ class ClassSessionController extends Controller
             'section_id' => 'required|exists:course_sections,id',
             'topic' => 'nullable|string',
             'date' => 'required|date',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
             'created_by' => 'nullable|exists:users,id',
         ]);
 
@@ -114,8 +114,8 @@ class ClassSessionController extends Controller
             'section_id' => 'exists:course_sections,id',
             'topic' => 'nullable|string',
             'date' => 'date',
-            'start_date' => 'date',
-            'end_date' => 'date|after:start_date',
+            'start_time' => 'date_format:H:i',
+            'end_time' => 'date_format:H:i|after:start_time',
             'created_by' => 'nullable|exists:users,id',
         ]);
 
@@ -126,14 +126,14 @@ class ClassSessionController extends Controller
             ], 422);
         }
 
-        $classSession->update($request->only([
-            'section_id',
-            'topic',
-            'date',
-            'start_time',
-            'end_time',
-            'created_by',
-        ]));
+        $classSession->update([
+            'section_id' => $request->section_id,
+            'topic' => $request->topic,
+            'date' => $request->date,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'created_by' => $request->created_by,
+        ]);
 
         return response()->json([
             'success' => true,

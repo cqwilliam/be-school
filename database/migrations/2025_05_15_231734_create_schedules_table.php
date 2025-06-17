@@ -17,8 +17,8 @@ class CreateSchedulesTable extends Migration
             $table->id();
             $table->foreignId('section_id')->constrained('course_sections');
             $table->string('day_of_week');
-            $table->date('start_time');
-            $table->date('end_time');
+            $table->time('start_date');
+            $table->time('end_date');
             $table->boolean('is_recurring')->default(true);
             $table->date('specific_date')->nullable();
             $table->timestamps();                

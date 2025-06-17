@@ -18,11 +18,6 @@ class Message extends Model
         'read_at'
     ];
 
-    protected $casts = [
-        'sent_at' => 'datetime',
-        'read_at' => 'datetime',
-        'is_read' => 'boolean',
-    ];
 
     /**
      * El usuario que envió el mensaje.

@@ -38,7 +38,6 @@ class CourseMaterialController extends Controller
             'description' => 'nullable|string',
             'type' => 'required|in:video,document,link',
             'url' => 'required|url',
-            'published_at' => 'nullable|date',
         ]);
 
         if ($validator->fails()) {
@@ -55,7 +54,6 @@ class CourseMaterialController extends Controller
             'description' => $request->description,
             'type' => $request->type,
             'url' => $request->url,
-            'published_at' => $request->published_at,
         ]);
 
         return response()->json([
@@ -107,7 +105,6 @@ class CourseMaterialController extends Controller
             'description' => 'nullable|string',
             'type' => 'in:video,document,link',
             'url' => 'url',
-            'published_at' => 'date',
         ]);
 
         if ($validator->fails()) {
@@ -124,7 +121,6 @@ class CourseMaterialController extends Controller
             'description',
             'type',
             'url',
-            'published_at',
         ]));
 
         return response()->json([

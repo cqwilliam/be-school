@@ -22,8 +22,6 @@ class Evaluation extends Model
 
     protected $casts = [
         'weight' => 'float',
-        'date' => 'date',
-        'due_date' => 'datetime',
     ];
     
     public static function validateTotalWeight($newWeight, $sectionId, $periodId, $excludeId = null)

@@ -14,12 +14,7 @@ class Announcement extends Model
         'title',
         'content',
         'target',
-        'published_at',
         'published_by',
-    ];
-
-    protected $casts = [
-        'published_at' => 'datetime',
     ];
 
     public const TARGET_GENERAL = 'General';
@@ -63,7 +58,6 @@ class Announcement extends Model
             'title' => ($updating ? 'sometimes|' : 'required|') . 'string|max:255',
             'content' => ($updating ? 'sometimes|' : 'required|') . 'string',
             'target' => ($updating ? 'sometimes|' : 'required|') . 'in:' . implode(',', self::getTargets()),
-            'published_at' => 'nullable|date',
             'published_by' => ($updating ? 'sometimes|' : 'required|') . 'exists:users,id',
         ];
     }

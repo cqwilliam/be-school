@@ -12,18 +12,12 @@ class Schedule extends Model
     protected $fillable = [
         'section_id',
         'day_of_week',
-        'start_time',
-        'end_time',
+        'start_date',
+        'end_date',
         'is_recurring',
         'specific_date',
     ];
 
-    protected $casts = [
-        'start_time' => 'date',
-        'end_time' => 'date',
-        'specific_date' => 'date',
-        'is_recurring' => 'boolean',
-    ];
 
     public function section()
     {

@@ -38,7 +38,7 @@ class AssignmentController extends Controller
             'title' => 'required|string|max:100',
             'description' => 'nullable|string',
             'published_at' => 'nullable|date',
-            'due_date' => 'required|date|after_or_equal:published_at',
+            'due_date' => 'required|date|after:published_at',
             'published_by' => 'required|exists:users,id',
         ]);
 
@@ -107,7 +107,7 @@ class AssignmentController extends Controller
             'title' => 'string|max:100',
             'description' => 'nullable|string',
             'published_at' => 'nullable|date',
-            'due_date' => 'date|after_or_equal:published_at',
+            'due_date' => 'date|after:published_at',
             'published_by' => 'exists:users,id',
         ]);
 

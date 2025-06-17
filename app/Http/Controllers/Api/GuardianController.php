@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Guardian;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -47,10 +48,17 @@ class GuardianController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-        
-        $guardian = Guardian::create([
-            'user_id' => $request->user_id->id
-        ]);
+
+        $user = User::find($request->user_id);
+        if ($user->role_id !== 4) { 
+            return response()->json([
+                'success' => false,
+                'message' => 'User is not a Apoderado'
+            ], 422);
+        }
+
+        $guardian = Guardian::create($validator->validated());
+
 
         return response()->json([
             'success' => true,
@@ -146,6 +154,26 @@ class GuardianController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Guardian deleted successfully'
+        ]);
+    }
+    public function getByUserId($user_id, Request $request)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
+        $guardian = Guardian::with('user')->where('user_id', $user_id)->first();
+
+        if (!$guardian) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Apoderado no encontrado'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $guardian
         ]);
     }
 }

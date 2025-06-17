@@ -125,16 +125,17 @@ class CourseController extends Controller
             ], 422);
         }
 
-        $course->update($request->only([
-            'code',
-            'name',
-            'description',
-            'credits',
-            'academic_period_id',
-        ]));
+        $course->update([
+            'code' => $request->code,
+            'name' => $request->name,
+            'description' => $request->description,
+            'credits' => $request->credits,
+            'academic_period_id' => $request->academic_period_id,
+        ]);
 
         return response()->json([
             'success' => true,
+            'message' => 'Course updated successfully',
             'data' => $course
         ]);
     }

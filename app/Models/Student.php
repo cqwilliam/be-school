@@ -12,8 +12,6 @@ class Student extends Model
 {
     use HasFactory;
 
-    // === ATTRIBUTES ===
-
     protected $fillable = [
         'user_id',
         'grade',

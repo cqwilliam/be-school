@@ -19,9 +19,7 @@ class CreateMessagesTable extends Migration
             $table->foreignId('sender_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('recipient_id')->constrained('users')->onDelete('cascade');
             $table->text('content');
-            $table->timestamp('sent_at')->useCurrent();
             $table->boolean('is_read')->default(false);
-            $table->dateTime('read_at')->nullable();
             $table->timestamps();
         });
     }

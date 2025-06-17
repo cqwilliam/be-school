@@ -18,8 +18,7 @@ class UserController extends Controller
             return $response;
         }
 
-        //$users = User::all();
-        $users = User::with('role')->get();
+        $users = User::all();
 
         return response()->json([
             'success' => true,
@@ -54,7 +53,7 @@ class UserController extends Controller
             'last_name' => $request->last_name,
             'user_name' => $request->user_name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => $validated['password'],
             'dni' => $request->dni,
             'birth_date' => $request->birth_date,
             'photo_url' => $request->photo_url,
@@ -92,11 +91,24 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
         $user = User::findOrFail($id);
 
-        $request->validate([
-            'current_password' => 'required_with:password',
-            'password' => 'nullable|min:6|confirmed',
+        $validated = $request->validate([
+            'first_name' => 'nullable|string|max:100',
+            'last_name' => 'nullable|string|max:100',
+            'user_name' => 'nullable|string|max:50',
+            'email' => 'nullable|string|email|max:100|unique:users,email,' . $user->id,
+            'password' => 'nullable|min:8|confirmed',
+            'dni' => 'nullable|string|max:20|unique:users,dni,' . $user->id,
+            'birth_date' => 'nullable|date',
+            'photo_url' => 'nullable|url|max:2048',
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+            'role_id' => 'nullable|exists:roles,id',
         ]);
 
         if ($request->filled('password')) {
@@ -106,9 +118,19 @@ class UserController extends Controller
                     'message' => 'La contraseña actual no es correcta.'
                 ], 422);
             }
-
             $user->password = Hash::make($request->password);
         }
+
+        $user->first_name = $request->first_name ?? $user->first_name;
+        $user->last_name = $request->last_name ?? $user->last_name;
+        $user->user_name = $request->user_name ?? $user->user_name;
+        $user->email = $request->email ?? $user->email;
+        $user->dni = $request->dni ?? $user->dni;
+        $user->birth_date = $request->birth_date ?? $user->birth_date;
+        $user->photo_url = $request->photo_url ?? $user->photo_url;
+        $user->phone = $request->phone ?? $user->phone;
+        $user->address = $request->address ?? $user->address;
+        $user->role_id = $request->role_id ?? $user->role_id;
 
         $user->save();
 
@@ -118,6 +140,7 @@ class UserController extends Controller
             'user' => $user
         ]);
     }
+
 
     public function destroy(Request $request, $id)
     {

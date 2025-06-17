@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Teacher;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -26,7 +27,6 @@ class TeacherController extends Controller
         ], 200);
     }
 
-    // Store a new teacher
     public function store(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
@@ -46,6 +46,14 @@ class TeacherController extends Controller
             ], 422);
         }
 
+        $user = User::find($request->user_id);
+        if ($user->role_id !== 3) { // 3 es el rol de Docente
+            return response()->json([
+                'success' => false,
+                'message' => 'El usuario debe ser un docente para ser creado como tal.'
+            ], 422);
+        }
+
         $teacher = Teacher::create($validator->validated());
 
         return response()->json([
@@ -54,6 +62,7 @@ class TeacherController extends Controller
             'data' => $teacher
         ], 201);
     }
+
 
     // Show a specific teacher
     public function show(Request $request, $id)
@@ -135,6 +144,27 @@ class TeacherController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Teacher deleted successfully'
+        ], 200);
+    }
+
+    public function getByUserId(Request $request, $userId)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
+        $teacher = Teacher::where('user_id', $userId)->first();
+
+        if (!$teacher) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Teacher not found for the given user ID'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $teacher
         ], 200);
     }
 }

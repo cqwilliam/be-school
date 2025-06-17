@@ -34,8 +34,13 @@ Route::middleware(JWTMiddleware::class)->group(function () {
     Route::get('/current-user', function (Request $request) {
         return response()->json($request->auth_user);
     });
-    
+
     Route::put('/users/{id}', [UserController::class, 'update']);
+    
+    Route::get('/teachers/by-user/{user_id}', [TeacherController::class, 'getByUserId']);
+    Route::get('/students/by-user/{user_id}', [StudentController::class, 'getByUserId']);
+    Route::get('/guardians/by-user/{user_id}', [GuardianController::class, 'getByUserId']);
+
     Route::apiResource('roles', RoleController::class);
     Route::apiResource('users', UserController::class);
     Route::apiResource('students', StudentController::class);
@@ -54,7 +59,7 @@ Route::middleware(JWTMiddleware::class)->group(function () {
     Route::apiResource('class-sessions', ClassSessionController::class);
     Route::apiResource('attendances', AttendanceController::class);
     Route::apiResource('assignments', AssignmentController::class);
-    Route::apiResource('assignment_submissions', AssignmentSubmissionController::class);
+    Route::apiResource('assignment-submissions', AssignmentSubmissionController::class);
     Route::apiResource('course-materials', CourseMaterialController::class);
     Route::apiResource('announcements', AnnouncementController::class);
     Route::apiResource('messages', MessageController::class);

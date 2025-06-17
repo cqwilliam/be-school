@@ -17,11 +17,11 @@ class ClassSession extends Model
         'end_time',
         'created_by'
     ];
-    protected $casts = [
-        'date' => 'date',
-        'start_time' => 'date',
-        'end_time' => 'date',
-    ];
+    // protected $casts = [
+    //     'date' => 'date',
+    //     'start_time' => 'date',
+    //     'end_time' => 'date',
+    // ];
 
 
     /**
@@ -36,7 +36,7 @@ class ClassSession extends Model
 
     public function createdBy()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class);
     }
 
     public function attendances()

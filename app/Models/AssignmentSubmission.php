@@ -20,11 +20,6 @@ class AssignmentSubmission extends Model
         'graded_by',
     ];
 
-    protected $casts = [
-        'submitted_at' => 'datetime',
-        'grade' => 'decimal:2',
-    ];
-
     /**
      * La tarea a la que corresponde esta entrega.
      */

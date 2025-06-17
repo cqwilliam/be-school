@@ -34,8 +34,8 @@ class ScheduleController extends Controller
         $validator = Validator::make($request->all(), [
             'section_id' => 'required|exists:course_sections,id',
             'day_of_week' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
+            'start_date' => 'required|date_format:H:i',
+            'end_date' => 'required|date_format:H:i|after:start_date',
             'is_recurring' => 'required|boolean',
             'specific_date' => 'nullable|date',
         ]);
@@ -50,8 +50,8 @@ class ScheduleController extends Controller
         $schedule = Schedule::create([
             'section_id' => $request->section_id,
             'day_of_week' => $request->day_of_week,
-            'start_time' => $request->start_date,
-            'end_time' => $request->end_date,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
             'is_recurring' => $request->is_recurring,
             'specific_date' => $request->specific_date,
         ]);
@@ -103,8 +103,8 @@ class ScheduleController extends Controller
         $validator = Validator::make($request->all(), [
             'section_id' => 'exists:course_sections,id',
             'day_of_week' => 'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
-            'start_time' => 'date',
-            'end_time' => 'date|after:start_time',
+            'start_date' => 'required|date_format:H:i',
+            'end_date' => 'required|date_format:H:i|after:start_date',
             'is_recurring' => 'boolean',
             'specific_date' => 'nullable|date',
         ]);
@@ -116,14 +116,14 @@ class ScheduleController extends Controller
             ], 422);
         }
 
-        $schedule->update($request->only([
-            'section_id',
-            'day_of_week',
-            'start_time',
-            'end_time',
-            'is_recurring',
-            'specific_date'
-        ]));
+        $schedule->update([
+            'section_id' => $request->section_id,
+            'day_of_week' => $request->day_of_week,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'is_recurring' => $request->is_recurring,
+            'specific_date' => $request->specific_date,
+        ]);
 
         return response()->json([
             'success' => true,

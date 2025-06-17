@@ -15,16 +15,8 @@ class CourseMaterial extends Model
         'description',
         'type',
         'url',
-        'published_at',
         'published_by',
     ];
-
-    protected $casts = [
-        'published_at' => 'datetime',
-        'type' => 'string',
-        'url' => 'string',
-    ];
-
 
     public const TYPE_DOCUMENT = 'Document';
     public const TYPE_VIDEO = 'Video';
@@ -52,10 +44,8 @@ class CourseMaterial extends Model
             'description' => 'nullable|string',
             'type' => ($updating ? 'sometimes|' : 'required|') . 'in:' . implode(',', self::getTypes()),
             'url' => ($updating ? 'sometimes|' : 'required|') . 'string',
-            'published_at' => 'nullable|date',
             'published_by' => ($updating ? 'sometimes|' : 'required|') . 'exists:users,id',
         ];
-
 
         return $rules;
     }

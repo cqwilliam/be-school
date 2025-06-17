@@ -21,7 +21,6 @@ class CreateCourseMaterialsTable extends Migration
             $table->text('description')->nullable();
             $table->string('type');
             $table->string('url');
-            $table->dateTime('published_at')->useCurrent();
             $table->timestamps();
         });
     }
