@@ -11,9 +11,7 @@ use Illuminate\Support\Facades\Validator;
 class ClassSessionController extends Controller
 {
     use RoleCheck;
-    /**
-     * Display a listing of the class sessions.
-     */
+
     public function index(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
@@ -28,9 +26,6 @@ class ClassSessionController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created class session.
-     */
     public function store(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
@@ -38,12 +33,12 @@ class ClassSessionController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'section_id' => 'required|exists:course_sections,id',
+            'teacher_id' => 'required|exists:users,id',
+            'section_period_id' => 'required|exists:course_sections,id',
             'topic' => 'nullable|string',
             'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
-            'created_by' => 'nullable|exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -54,12 +49,12 @@ class ClassSessionController extends Controller
         }
         
         $classSession = ClassSession::create([
-            'section_id' => $request->section_id,
+            'teacher_id' => $request->teacher_id,
+            'section_period_id' => $request->section_period_id,
             'topic' => $request->topic,
             'date' => $request->date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
-            'created_by' => $request->created_by,
         ]);
 
         return response()->json([
@@ -68,9 +63,6 @@ class ClassSessionController extends Controller
         ], 201);
     }
 
-    /**
-     * Display the specified class session.
-     */
     public function show($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
@@ -92,9 +84,6 @@ class ClassSessionController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified class session.
-     */
     public function update(Request $request, $id)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
@@ -111,12 +100,13 @@ class ClassSessionController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'section_id' => 'exists:course_sections,id',
+            'teacher_id' => 'required|exists:users,id',
+            'section_period_id' => 'required|exists:course_sections,id',
             'topic' => 'nullable|string',
-            'date' => 'date',
-            'start_time' => 'date_format:H:i',
-            'end_time' => 'date_format:H:i|after:start_time',
-            'created_by' => 'nullable|exists:users,id',
+            'date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format',
+            
         ]);
 
         if ($validator->fails()) {
@@ -127,12 +117,12 @@ class ClassSessionController extends Controller
         }
 
         $classSession->update([
-            'section_id' => $request->section_id,
+            'teacher_id' => $request->teacher_id,
+            'section_period_id' => $request->section_period_id,
             'topic' => $request->topic,
             'date' => $request->date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
-            'created_by' => $request->created_by,
         ]);
 
         return response()->json([
@@ -141,9 +131,6 @@ class ClassSessionController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified class session.
-     */
     public function destroy($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {

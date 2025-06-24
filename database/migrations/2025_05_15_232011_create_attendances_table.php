@@ -15,12 +15,11 @@ class CreateAttendancesTable extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('class_session_id')->constrained('class_sessions');
+            $table->foreignId('teacher_id')->constrained('teachers');
             $table->foreignId('student_id')->constrained('students');
+            $table->foreignId('class_session_id')->constrained('class_sessions');
             $table->string('status');
-            $table->time('recorded_time')->nullable();
             $table->text('justification')->nullable();
-            $table->foreignId('recorded_by')->nullable()->constrained('users');
             $table->timestamps();
             
             $table->unique(['class_session_id', 'student_id']);

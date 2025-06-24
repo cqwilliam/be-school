@@ -10,12 +10,11 @@ class Schedule extends Model
     use HasFactory;
 
     protected $fillable = [
-        'section_id',
+        'section_period_id',
+        'course_id',
         'day_of_week',
-        'start_date',
-        'end_date',
-        'is_recurring',
-        'specific_date',
+        'start_time',
+        'end_time',
     ];
 
 

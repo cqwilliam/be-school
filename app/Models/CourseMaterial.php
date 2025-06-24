@@ -10,12 +10,11 @@ class CourseMaterial extends Model
     use HasFactory;
 
     protected $fillable = [
-        'section_id',
+        'course_id',
         'title',
         'description',
         'type',
         'url',
-        'published_by',
     ];
 
     public const TYPE_DOCUMENT = 'Document';
@@ -52,7 +51,7 @@ class CourseMaterial extends Model
 
     public function courseSection()
     {
-        return $this->belongsTo(CourseSection::class);
+        return $this->belongsTo(CourseSection::class, 'section_id');
     }
 
     public function publishedBy()

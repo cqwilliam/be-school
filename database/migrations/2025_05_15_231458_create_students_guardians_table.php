@@ -19,6 +19,8 @@ class CreateStudentsGuardiansTable extends Migration
             $table->foreignId('guardian_id')->constrained('guardians')->onDelete('cascade');
             $table->string('relationship', 100)->nullable(); // Father, Mother, Legal Guardian
             $table->timestamps();
+
+            $table->unique(['student_id', 'guardian_id']); // Asegura que cada estudiante tenga un solo apoderado
         });
 
     }

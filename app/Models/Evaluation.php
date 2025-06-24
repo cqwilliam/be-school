@@ -10,13 +10,10 @@ class Evaluation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'section_id',
+        'section_period_id',
         'evaluation_type_id',
-        'academic_period_id',
         'title',
         'description',
-        'weight',
-        'date',
         'due_date'
     ];
 
@@ -59,7 +56,7 @@ class Evaluation extends Model
      */
     public function academicPeriod()
     {
-        return $this->belongsTo(AcademicPeriod::class, 'academic_period_id');
+        return $this->belongsTo(Period::class, 'academic_period_id');
     }
 
     /**
@@ -67,7 +64,7 @@ class Evaluation extends Model
      */
     public function grades()
     {
-        return $this->hasMany(Grade::class);
+        return $this->hasMany(EvaluationGrade::class);
     }
 
     public function courseSection()

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateEnrollmentsTable extends Migration
+class CreateStudentEnrollmentTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,25 +13,22 @@ class CreateEnrollmentsTable extends Migration
      */
     public function up()
     {
-        Schema::create('enrollments', function (Blueprint $table) {
+        Schema::create('student_enrollments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained('students');
-            $table->foreignId('section_id')->constrained('course_sections');
-            $table->foreignId('academic_period_id')->constrained('academic_periods');
-            $table->timestamp('enrolled_at')->useCurrent();
+            $table->foreignId('section_period_id')->constrained('section_periods');
             $table->string('status');
-            $table->unique(['student_id', 'section_id', 'academic_period_id']);
             $table->timestamps();
+
+            $table->unique(['student_id', 'section_period_id']);
         });
     }
 
     /**
-     * Reverse the migrations.
-     *
      * @return void
      */
     public function down()
     {
-        Schema::dropIfExists('enrollments');
+        Schema::dropIfExists('student_enrollments');
     }
 }

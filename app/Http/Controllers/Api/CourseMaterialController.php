@@ -32,11 +32,10 @@ class CourseMaterialController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'section_id' => 'required|exists:course_sections,id',
-            'published_by' => 'required|exists:users,id',
+            'course_id' => 'required|exists:courses,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:video,document,link',
+            'type' => 'required|in:video,document,pdf,link,image,presentation',
             'url' => 'required|url',
         ]);
 
@@ -48,8 +47,7 @@ class CourseMaterialController extends Controller
         }
 
         $material = CourseMaterial::create([
-            'section_id' => $request->section_id,
-            'published_by' => $request->published_by,
+            'course_id' => $request->course_id,
             'title' => $request->title,
             'description' => $request->description,
             'type' => $request->type,
@@ -99,11 +97,10 @@ class CourseMaterialController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'section_id' => 'exists:course_sections,id',
-            'published_by' => 'exists:users,id',
+            'course_id' => 'exists:courses,id',
             'title' => 'string|max:255',
             'description' => 'nullable|string',
-            'type' => 'in:video,document,link',
+            'type' => 'required|in:video,document,pdf,link,image,presentation',
             'url' => 'url',
         ]);
 
@@ -115,8 +112,7 @@ class CourseMaterialController extends Controller
         }
 
         $material->update($request->only([
-            'section_id',
-            'published_by',
+            'course_id',
             'title',
             'description',
             'type',
@@ -149,6 +145,23 @@ class CourseMaterialController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'material deleted successfully'
+        ]);
+    }
+
+    public function getBySectionId($section_id, Request $request)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
+            return $response;
+        }
+
+        $materials = CourseMaterial::with(['publishedBy', 'courseSection.course'])
+            ->where('section_id', $section_id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $materials
         ]);
     }
 }

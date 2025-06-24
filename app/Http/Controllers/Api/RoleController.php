@@ -29,7 +29,6 @@ class RoleController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:50|unique:roles,name',
-            'description' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -42,7 +41,6 @@ class RoleController extends Controller
         
         $role = Role::create([
             'name' => $request->name,
-            'description' => $request->description,
         ]);
 
         return response()->json([
@@ -87,7 +85,6 @@ class RoleController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'string|max:50|unique:roles,name,' . $role->id,
-            'description' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {

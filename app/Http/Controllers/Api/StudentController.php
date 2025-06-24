@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Student;
+use App\Models\StudentGuardian;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -22,7 +23,6 @@ class StudentController extends Controller
         }
 
         $students = Student::all();
-        //$student = Student::with('user')->get();
 
         return response()->json([
             'success' => true,
@@ -41,8 +41,6 @@ class StudentController extends Controller
 
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id|unique:students,user_id',
-            'grade' => 'required|string|max:20',
-            'section' => 'required|string|max:10',
         ]);
 
         if ($validator->fails()) {
@@ -112,9 +110,7 @@ class StudentController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            //'user_id' => 'sometimes|exists:users,id|unique:students,user_id,' . $student->id,
-            'grade' => 'sometimes|string|max:20',
-            'section' => 'sometimes|string|max:10',
+            'user_id' => 'sometimes|exists:users,id|unique:students,user_id,' . $student->id,
         ]);
 
         if ($validator->fails()) {
@@ -176,6 +172,22 @@ class StudentController extends Controller
         return response()->json([
             'success' => true,
             'data' => $student
+        ]);
+    }
+
+    public function getGuardiansByStudentId($student_id, Request $request)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
+        $guardians = StudentGuardian::with('guardian.user')
+            ->where('student_id', $student_id)
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $guardians
         ]);
     }
 }

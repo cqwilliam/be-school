@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\RoleCheck;
-use App\Models\AcademicPeriod;
+use App\Models\Period;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class AcademicPeriodController extends Controller
+class PeriodController extends Controller
 {
     use RoleCheck;
 
@@ -18,7 +18,7 @@ class AcademicPeriodController extends Controller
             return $response;
         }
 
-        $periods = AcademicPeriod::all();
+        $periods = Period::all();
         return response()->json([
             'success' => true,
             'data' => $periods
@@ -45,7 +45,7 @@ class AcademicPeriodController extends Controller
             ], 422);
         }
 
-        $period = AcademicPeriod::create([
+        $period = Period::create([
             'name' => $request->name,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
@@ -64,7 +64,7 @@ class AcademicPeriodController extends Controller
             return $response;
         }
 
-        $period = AcademicPeriod::find($id);
+        $period = Period::find($id);
         if (!$period) {
             return response()->json([
                 'success' => false,
@@ -83,7 +83,7 @@ class AcademicPeriodController extends Controller
             return $response;
         }
 
-        $period = AcademicPeriod::find($id);
+        $period = Period::find($id);
         if (!$period) {
             return response()->json([
                 'success' => false,
@@ -98,7 +98,7 @@ class AcademicPeriodController extends Controller
             'active' => 'boolean'
         ]);
         if (!empty($validated['active']) && $validated['active'] === true) {
-            AcademicPeriod::where('active', true)->update(['active' => false]);
+            Period::where('active', true)->update(['active' => false]);
         }
 
         $period->update($validated);
@@ -116,7 +116,7 @@ class AcademicPeriodController extends Controller
             return $response;
         }
 
-        $period = AcademicPeriod::find($id);
+        $period = Period::find($id);
         if (!$period) {
             return response()->json([
                 'success' => false,
@@ -137,7 +137,7 @@ class AcademicPeriodController extends Controller
             return $response;
         }
 
-        $period = AcademicPeriod::where('active', true)->select('name')->first();
+        $period = Period::where('active', true)->select('name')->first();
 
         return response()->json([
             'success' => true,

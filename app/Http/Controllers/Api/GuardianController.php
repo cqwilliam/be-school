@@ -156,24 +156,24 @@ class GuardianController extends Controller
             'message' => 'Guardian deleted successfully'
         ]);
     }
-    public function getByUserId($user_id, Request $request)
-    {
-        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
-            return $response;
-        }
+    // public function getByUserId($user_id, Request $request)
+    // {
+    //     if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+    //         return $response;
+    //     }
 
-        $guardian = Guardian::with('user')->where('user_id', $user_id)->first();
+    //     $guardian = Guardian::with('user')->where('user_id', $user_id)->first();
 
-        if (!$guardian) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Apoderado no encontrado'
-            ], 404);
-        }
+    //     if (!$guardian) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Apoderado no encontrado'
+    //         ], 404);
+    //     }
 
-        return response()->json([
-            'success' => true,
-            'data' => $guardian
-        ]);
-    }
+    //     return response()->json([
+    //         'success' => true,
+    //         'data' => $guardian
+    //     ]);
+    // }
 }

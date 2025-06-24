@@ -25,7 +25,6 @@ class AttendanceController extends Controller
         ]);
     }
 
-    // Crear asistencia
     public function store(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
@@ -33,12 +32,11 @@ class AttendanceController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'class_session_id' => 'required|exists:class_sessions,id',
+            'teacher_id' => 'required|exists:teachers,id',
             'student_id' => 'required|exists:students,id',
+            'class_session_id' => 'required|exists:class_sessions,id',
             'status' => 'required|in:present,absent,late,justified',
-            'recorded_time' => 'nullable|date_format:H:i:s',
             'justification' => 'nullable|string',
-            'recorded_by' => 'required|exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -49,12 +47,11 @@ class AttendanceController extends Controller
         }
         
         $attendances = Attendance::create([
-            'class_session_id' => $request->class_session_id,
+            'teacher_id' => $request->teacher_id,
             'student_id' => $request->student_id,
+            'class_session_id' => $request->class_session_id,
             'status' => $request->status,
-            'recorded_time' => $request->recorded_time,
             'justification' => $request->justification,
-            'recorded_by' => $request->recorded_by,
         ]);
 
         return response()->json([
@@ -63,7 +60,6 @@ class AttendanceController extends Controller
         ], 201);
     }
 
-    // Mostrar una asistencia
     public function show($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
@@ -85,7 +81,6 @@ class AttendanceController extends Controller
         ]);
     }
 
-    // Actualizar asistencia
     public function update(Request $request, $id)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
@@ -102,12 +97,11 @@ class AttendanceController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
+            'teacher_id' => 'exists:teachers,id',
             'class_session_id' => 'exists:class_sessions,id',
             'student_id' => 'exists:students,id',
             'status' => 'in:present,absent,late,justified',
-            'recorded_time' => 'nullable|date_format:H:i:s',
             'justification' => 'nullable|string',
-            'recorded_by' => 'exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -118,12 +112,11 @@ class AttendanceController extends Controller
         }
 
         $attendance->update($request->only([
-            'class_session_id',
+            'teacher_id',
             'student_id',
+            'class_session_id',
             'status',
-            'recorded_time',
             'justification',
-            'recorded_by'
         ]));
 
         return response()->json([
@@ -132,7 +125,6 @@ class AttendanceController extends Controller
         ]);
     }
 
-    // Eliminar asistencia
     public function destroy($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {

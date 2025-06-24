@@ -15,11 +15,10 @@ class CreateAnnouncementsTable extends Migration
     {
         Schema::create('announcements', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('title', 255);
             $table->text('content');
             $table->string('target');
-            $table->foreignId('section_id')->nullable()->constrained('course_sections')->nullOnDelete();
-            $table->foreignId('published_by')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

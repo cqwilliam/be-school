@@ -19,8 +19,6 @@ class CreateCoursesTable extends Migration
             $table->string('code', 20)->unique();
             $table->string('name', 100);
             $table->text('description')->nullable();
-            $table->integer('credits')->default(0);
-            $table->foreignId('academic_period_id')->constrained('academic_periods')->onDelete('cascade');
             $table->timestamps();
         });
     }

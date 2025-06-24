@@ -10,12 +10,12 @@ class ClassSession extends Model
     use HasFactory;
 
     protected $fillable = [
-        'section_id',
+        'teacher_id',
+        'section_period_id',
         'topic',
         'date',
         'start_time',
         'end_time',
-        'created_by'
     ];
     // protected $casts = [
     //     'date' => 'date',

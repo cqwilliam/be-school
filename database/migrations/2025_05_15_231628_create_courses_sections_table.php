@@ -3,9 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
-class CreateAcademicPeriodsTable extends Migration
+class CreateCoursesSectionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,15 +13,14 @@ class CreateAcademicPeriodsTable extends Migration
      */
     public function up()
     {
-        Schema::create('academic_periods', function (Blueprint $table) {
+        Schema::create('courses_sections', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 100); // e.g. "2025-I"
-            $table->date('start_date');
-            $table->date('end_date');
-            $table->boolean('active')->default(false);
+            $table->foreignId('course_id')->constrained('courses');
+            $table->foreignId('section_id')->nullable()->constrained('sections');
             $table->timestamps();
-        });
 
+            $table->unique(['course_id', 'section_id']);
+        });
     }
 
     /**
@@ -32,6 +30,6 @@ class CreateAcademicPeriodsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('academic_periods');
+        Schema::dropIfExists('courses_sections');
     }
 }

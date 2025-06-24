@@ -15,12 +15,11 @@ class CreateSchedulesTable extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('section_id')->constrained('course_sections');
+            $table->foreignId('section_period_id')->constrained('section_periods');
+            $table->foreignId('course_id')->constrained('courses');
             $table->string('day_of_week');
-            $table->time('start_date');
-            $table->time('end_date');
-            $table->boolean('is_recurring')->default(true);
-            $table->date('specific_date')->nullable();
+            $table->time('start_time');
+            $table->time('end_time');
             $table->timestamps();                
         });
     }

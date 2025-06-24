@@ -4,34 +4,27 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\RoleCheck;
-use App\Models\Grade;
+use App\Models\EvaluationGrade;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
-class GradeController extends Controller
+class EvaluationGradeController extends Controller
 {
     use RoleCheck;
-    /**
-     * Display a listing of the grades.
-     */
+
     public function index(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
             return $response;
         }
 
-        $grades = Grade::all();
+        $grades = EvaluationGrade::all();
         return response()->json([
             'success' => true,
             'data' => $grades
         ]);
     }
 
-
-    /**
-     * Store a newly created grade.
-     */
     public function store(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
@@ -41,10 +34,8 @@ class GradeController extends Controller
         $validator = Validator::make($request->all(), [
             'evaluation_id' => 'required|exists:evaluations,id',
             'student_id' => 'required|exists:students,id',
-            'graded_by' => 'nullable|exists:users,id',
-            'score' => 'required|numeric|min:0|max:20',
+            'grade' => 'required|numeric|min:0|max:20',
             'comment' => 'nullable|string',
-            'graded_at' => 'nullable|date',
         ]);
 
         if ($validator->fails()) {
@@ -54,13 +45,11 @@ class GradeController extends Controller
             ], 422);
         }
 
-        $grades = Grade::create([
+        $grades = EvaluationGrade::create([
             'evaluation_id' => $request->evaluation_id,
             'student_id' => $request->student_id,
-            'graded_by' => $request->graded_by,
-            'score' => $request->score,
+            'grade' => $request->grade,
             'comment' => $request->comment,
-            'graded_at' => $request->graded_at,
         ]);
 
         return response()->json([
@@ -78,7 +67,7 @@ class GradeController extends Controller
             return $response;
         }
 
-        $grades = Grade::find($id);
+        $grades = EvaluationGrade::find($id);
 
         if (!$grades) {
             return response()->json([
@@ -98,11 +87,11 @@ class GradeController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if ($response = $this->checkRole($request, ['Administrador','Docente'])) {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
             return $response;
         }
-        
-        $grade = Grade::find($id);
+
+        $grade = EvaluationGrade::find($id);
 
         if (!$grade) {
             return response()->json([
@@ -114,10 +103,8 @@ class GradeController extends Controller
         $validator = Validator::make($request->all(), [
             'evaluation_id' => 'exists:evaluations,id',
             'student_id' => 'exists:students,id',
-            'graded_by' => 'nullable|exists:users,id',
-            'score' => 'numeric|min:0|max:20',
+            'grade' => 'numeric|min:0|max:20',
             'comment' => 'nullable|string',
-            'graded_at' => 'nullable|date',
         ]);
 
         if ($validator->fails()) {
@@ -130,10 +117,8 @@ class GradeController extends Controller
         $grade->update($request->only([
             'evaluation_id',
             'student_id',
-            'graded_by',
-            'score',
+            'grade',
             'comment',
-            'graded_at',
         ]));
 
         return response()->json([
@@ -151,7 +136,7 @@ class GradeController extends Controller
             return $response;
         }
 
-        $grade = Grade::find($id);
+        $grade = EvaluationGrade::find($id);
 
         if (!$grade) {
             return response()->json([
@@ -165,6 +150,52 @@ class GradeController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'grade deleted successfully'
+        ]);
+    }
+    public function getStudentGrades($student_id, Request $request)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
+        $grades = EvaluationGrade::with([
+            'evaluation.courseSection.course',
+            'evaluation.evaluationType',
+            'gradedBy'
+        ])
+            ->where('student_id', $student_id)
+            ->whereHas('evaluation.academicPeriod', function ($query) {
+                $query->where('active', true);
+            })
+            ->orderBy('graded_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $grades
+        ]);
+    }
+
+    public function getStudentGradesBySection($student_id, $section_id, Request $request)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
+        $grades = EvaluationGrade::with([
+            'evaluation.evaluationType',
+            'gradedBy'
+        ])
+            ->whereHas('evaluation', function ($query) use ($section_id) {
+                $query->where('section_id', $section_id);
+            })
+            ->where('student_id', $student_id)
+            ->orderBy('graded_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $grades
         ]);
     }
 }

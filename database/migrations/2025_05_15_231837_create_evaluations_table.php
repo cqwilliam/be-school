@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 class CreateEvaluationsTable extends Migration
 {
@@ -16,13 +15,10 @@ class CreateEvaluationsTable extends Migration
     {
         Schema::create('evaluations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('section_id')->constrained('course_sections');
-            $table->foreignId('evaluation_type_id')->constrained();
-            $table->foreignId('academic_period_id')->constrained();
+            $table->foreignId('section_period_id')->constrained('section_periods');
+            $table->foreignId('evaluation_type_id')->constrained('evaluation_types');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->decimal('weight', 5, 2)->default(0.00);
-            $table->date('date');
             $table->dateTime('due_date')->nullable();
             $table->timestamps();
         });

@@ -15,8 +15,7 @@ class CreateCourseMaterialsTable extends Migration
     {
         Schema::create('course_materials', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('section_id')->constrained('course_sections')->onDelete('cascade');
-            $table->foreignId('published_by')->constrained('users')->onDelete('cascade');
+            $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
             $table->string('title', 100);
             $table->text('description')->nullable();
             $table->string('type');

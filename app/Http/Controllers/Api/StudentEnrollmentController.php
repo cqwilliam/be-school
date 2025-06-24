@@ -4,40 +4,46 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\RoleCheck;
-use App\Models\Evaluation;
+use App\Models\StudentEnrollment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class EvaluationController extends Controller
+class StudentEnrollmentController extends Controller
 {
     use RoleCheck;
-
+    
     public function index(Request $request)
     {
-        if ($response = $this->checkRole($request, ['Administrador','Docente', 'Estudiante'])) {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
             return $response;
         }
 
-        $evaluations = Evaluation::all();
+        $studentenrollments = StudentEnrollment::all();
         return response()->json([
             'success' => true,
-            'data' => $evaluations
+            'data' => $studentenrollments
         ]);
     }
 
     public function store(Request $request)
     {
-        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
             return $response;
         }
 
         $validator = Validator::make($request->all(), [
-            'section_period_id' => 'required|exists:section_periods,id',
-            'evaluation_type_id' => 'required|exists:evaluation_types,id',
-            'title' => 'required|string|max:100',
-            'description' => 'nullable|string',
-            'due_date' => 'nullable|date|after_or_equal:date',
+            'student_id' => 'required|exists:students,id',
+            'section_period_id' => 'required|exists:sections_periods,id',
+            'status' => 'required|string|max:100',
         ]);
+
+        $validator->after(function ($validator) use ($request) {
+            if (StudentEnrollment::where('student_id', $request->student_id)
+                ->where('section_period_id', $request->section_period_id)
+                ->exists()) {
+                $validator->errors()->add('enrollment', 'El estudiante ya está matriculado en esta sección');
+            }
+        });
 
         if ($validator->fails()) {
             return response()->json([
@@ -46,17 +52,15 @@ class EvaluationController extends Controller
             ], 422);
         }
 
-        $evaluations = Evaluation::create([
+        $studentEnrollment = StudentEnrollment::create([
+            'student_id' => $request->student_id,
             'section_period_id' => $request->section_period_id,
-            'evaluation_type_id' => $request->evaluation_type_id,
-            'title' => $request->title,
-            'description' => $request->description,
-            'due_date' => $request->due_date,
+            'status' => $request->status,
         ]);
 
         return response()->json([
             'success' => true,
-            'data' => $evaluations
+            'data' => $studentEnrollment
         ], 201);
     }
 
@@ -66,42 +70,40 @@ class EvaluationController extends Controller
             return $response;
         }
 
-        $evaluation = Evaluation::find($id);
+        $studentEnrollment = StudentEnrollment::find($id);
 
-        if (!$evaluation) {
+        if (!$studentEnrollment) {
             return response()->json([
                 'success' => false,
-                'message' => 'evaluation not found'
+                'message' => 'studentEnrollment not found'
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $evaluation
+            'data' => $studentEnrollment
         ]);
     }
 
-    // Actualizar una evaluación
     public function update(Request $request, $id)
     {
-        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+        if ($response = $this->checkRole($request, ['Administrador'])) {
             return $response;
         }
 
-        $evaluation = Evaluation::find($id);
+        $studentEnrollment = StudentEnrollment::find($id);
 
-        if (!$evaluation) {
+        if (!$studentEnrollment) {
             return response()->json([
                 'success' => false,
-                'message' => 'evaluation not found'
+                'message' => 'studentEnrollment not found'
             ], 404);
         }
+
         $validator = Validator::make($request->all(), [
-            'section_period_id' => 'exists:section_periods,id',
-            'evaluation_type_id' => 'exists:evaluation_types,id',
-            'title' => 'string|max:100',
-            'description' => 'nullable|string',
-            'due_date' => 'nullable|date|after_or_equal:date',
+            'student_id' => 'exists:students,id',
+            'section_period_id' => 'exists:sections_periods,id',
+            'status' => 'string|max:100',
         ]);
 
         if ($validator->fails()) {
@@ -111,41 +113,38 @@ class EvaluationController extends Controller
             ], 422);
         }
 
-        $evaluation->update($request->only([
+        $studentEnrollment->update($request->only([
+            'student_id',
             'section_period_id',
-            'evaluation_type_id',
-            'title',
-            'description',
-            'due_date'
+            'status'
         ]));
 
         return response()->json([
             'success' => true,
-            'data' => $evaluation
+            'data' => $studentEnrollment
         ]);
     }
 
-    // Eliminar una evaluación
     public function destroy($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
             return $response;
         }
 
-        $evaluation = Evaluation::find($id);
+        $studentEnrollment = StudentEnrollment::find($id);
 
-        if (!$evaluation) {
+        if (!$studentEnrollment) {
             return response()->json([
                 'success' => false,
-                'message' => 'evaluation not found'
+                'message' => 'studentEnrollment not found'
             ], 404);
         }
 
-        $evaluation->delete();
+        $studentEnrollment->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'evaluation deleted successfully'
+            'message' => 'studentEnrollment deleted successfully'
         ]);
     }
 }

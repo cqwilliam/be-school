@@ -43,35 +43,32 @@ class User extends Authenticatable
         'age_name',
     ];
 
-    // === RELACIONES ===
-
     public function getFullNameAttribute()
     {
         return "{$this->first_name} {$this->last_name}";
     }
+
     public function getRoleNameAttribute()
     {
         return $this->role ? $this->role->name : null;
     }
+
     public function getAgeNameAttribute()
     {
         return Carbon::parse($this->birth_date)->age;
     }
 
 
-    // Rol
     public function role()
     {
         return $this->belongsTo(Role::class);
     }
 
-    // Si el usuario es estudiante
     public function student()
     {
         return $this->hasOne(Student::class);
     }
 
-    // Si el usuario es docente
     public function teacher()
     {
         return $this->hasOne(Teacher::class);
@@ -82,19 +79,16 @@ class User extends Authenticatable
         return $this->hasOne(Guardian::class);
     }
 
-    // Publicaciones de anuncios
     public function announcements()
     {
         return $this->hasMany(Announcement::class, 'published_by');
     }
 
-    // Publicaciones de tareas
     public function assignments()
     {
         return $this->hasMany(Assignment::class, 'published_by');
     }
 
-    // Materiales publicados
     public function courseMaterialsPublished()
     {
         return $this->hasMany(CourseMaterial::class, 'published_by');
@@ -105,13 +99,11 @@ class User extends Authenticatable
         return $this->hasMany(ClassSession::class, 'created_by');
     }
 
-    // Mensajes enviados
     public function messagesSent()
     {
         return $this->hasMany(Message::class, 'sender_id');
     }
 
-    // Mensajes recibidos
     public function messagesReceived()
     {
         return $this->belongsToMany(Message::class, 'message_recipients', 'recipient_id', 'message_id');
@@ -119,7 +111,7 @@ class User extends Authenticatable
 
     public function grades()
     {
-        return $this->hasMany(Grade::class, 'graded_by');
+        return $this->hasMany(EvaluationGrade::class, 'graded_by');
     }
 
     public function attendances()

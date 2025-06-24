@@ -37,10 +37,8 @@ class AssignmentSubmissionController extends Controller
             'student_id' => 'required|exists:students,id',
             'file_url' => 'nullable|string',
             'comment' => 'nullable|string',
-            'submitted_at' => 'nullable|date',
             'grade' => 'nullable|numeric|min:0|max:20',
             'feedback' => 'nullable|string',
-            'graded_by' => 'nullable|exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -55,10 +53,8 @@ class AssignmentSubmissionController extends Controller
             'student_id' => $request->student_id,
             'file_url' => $request->file_url,
             'comment' => $request->comment,
-            'submitted_at' => $request->submitted_at,
             'grade' => $request->grade,
             'feedback' => $request->feedback,
-            'graded_by' => $request->graded_by,
         ]);
 
         return response()->json([
@@ -108,10 +104,8 @@ class AssignmentSubmissionController extends Controller
             'student_id' => 'exists:students,id',
             'file_url' => 'nullable|string',
             'comment' => 'nullable|string',
-            'submitted_at' => 'nullable|date',
             'grade' => 'nullable|numeric|min:0|max:20',
             'feedback' => 'nullable|string',
-            'graded_by' => 'nullable|exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -126,10 +120,8 @@ class AssignmentSubmissionController extends Controller
             'student_id',
             'file_url',
             'comment',
-            'submitted_at',
             'grade',
             'feedback',
-            'graded_by',
         ]));
 
         return response()->json([

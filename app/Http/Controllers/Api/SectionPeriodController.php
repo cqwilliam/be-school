@@ -3,133 +3,126 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Traits\RoleCheck;
-use App\Models\StudentGuardian;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Traits\RoleCheck;
+use App\Models\SectionPeriod;
 use Illuminate\Support\Facades\Validator;
 
-class StudentGuardianController extends Controller
+class SectionPeriodController extends Controller
 {
     use RoleCheck;
     /**
-     * Mostrar todas las relaciones estudiante-apoderado.
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
-        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
             return $response;
         }
-
-        $relations = StudentGuardian::all();
+        $sectionPeriod = SectionPeriod::all();
         return response()->json([
             'success' => true,
-            'data' => $relations
+            'data' => $sectionPeriod
         ]);
     }
 
     /**
-     * Crear una nueva relación estudiante-apoderado.
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
             return $response;
         }
-
         $validator = Validator::make($request->all(), [
-            'student_id' => 'required|exists:students,id',
-            'guardian_id' => 'required|exists:guardians,id',
-            'relationship' => 'nullable|string|max:100',
+            'section_id' => 'required|integer|exists:sections,id',
+            'period_id' => 'required|integer|exists:periods,id',
         ]);
-
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-
-        $studentGuardian = StudentGuardian::create([
-            'student_id' => $request->student_id,
-            'guardian_id' => $request->guardian_id,
-            'relationship' => $request->relationship,
+        $sectionPeriod = SectionPeriod::create([
+            'section_id' => $request->section_id,
+            'period_id' => $request->period_id,
         ]);
 
         return response()->json([
             'success' => true,
-            'data' => $studentGuardian
+            'data' => $sectionPeriod
         ], 201);
     }
 
     /**
-     * Mostrar una relación específica.
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
      */
     public function show($id, Request $request)
     {
-        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
             return $response;
         }
-
-        $student_guardian = StudentGuardian::find($id);
-
-        if (!$student_guardian) {
+        $sectionPeriod = SectionPeriod::find($id);
+        if (!$sectionPeriod) {
             return response()->json([
                 'success' => false,
-                'message' => 'Student Guardian not found'
+                'message'
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $student_guardian
+            'data' => $sectionPeriod
         ]);
     }
 
     /**
-     * Actualizar una relación específica.
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
             return $response;
         }
-
-        $student_guardian = StudentGuardian::find($id);
-
-        if (!$student_guardian) {
+        $sectionPeriod = SectionPeriod::find($id);
+        if (!$sectionPeriod) {
             return response()->json([
                 'success' => false,
-                'message' => 'Student Guardian not found'
+                'message' => 'SectionPeriod not found'
             ], 404);
         }
         $validator = Validator::make($request->all(), [
-            'student_id' => 'required|exists:students,id',
-            'guardian_id' => 'required|exists:guardians,id',
-            'relationship' => 'nullable|string|max:100',
+            'section_id' => 'required|integer|exists:sections,id',
+            'period_id' => 'required|integer|exists:periods,id',
         ]);
-
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-
-        $student_guardian->update([
-            'student_id' => $request->student_id,
-            'guardian_id' => $request->guardian_id,
-            'relationship' => $request->relationship,
+        $sectionPeriod->update([
+            'section_id' => $request->section_id,
+            'period_id' => $request->period_id,
         ]);
-
         return response()->json([
             'success' => true,
-            'message' => 'Student Guardian updated successfully',
-            'data' => $student_guardian
+            'data' => $sectionPeriod
         ], 200);
     }
 
     /**
-     * Eliminar una relación.
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
      */
     public function destroy($id, Request $request)
     {
@@ -137,20 +130,20 @@ class StudentGuardianController extends Controller
             return $response;
         }
 
-        $student_guardian = StudentGuardian::find($id);
+        $sectionPeriod = SectionPeriod::find($id);
 
-        if (!$student_guardian) {
+        if (!$sectionPeriod) {
             return response()->json([
                 'success' => false,
-                'message' => 'Student Guardian not found'
+                'message' => 'SectionPeriod not found'
             ], 404);
         }
 
-        $student_guardian->delete();
-
+        $sectionPeriod->delete();
+        
         return response()->json([
             'success' => true,
-            'message' => 'Student Guardian deleted successfully'
-        ]);
+            'message' => 'SectionPeriod deleted successfully'
+        ], 200);
     }
 }

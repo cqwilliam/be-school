@@ -8,46 +8,33 @@ use Illuminate\Database\Eloquent\Model;
 class CourseSection extends Model
 {
     use HasFactory;
+    protected $table = 'courses_sections';
 
     protected $fillable = [
         'course_id',
-        'code',
-        'classroom',
-        'max_capacity',
+        'section_id',
     ];
 
-    /**
-     * Get the course associated with this section.
-     */
     public function course()
     {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(Course::class, 'course_id');
     }
 
-    /**
-     * Get the enrollments for this section.
-     */
-    public function enrollments()
+    public function studentEnrollments()
     {
-        return $this->hasMany(Enrollment::class, 'section_id');
+        return $this->hasMany(StudentEnrollment::class, 'section_id');
     }
 
-    /**
-     * Get the teachers assigned to this section.
-     */
     public function teachers()
     {
-        return $this->belongsToMany(Teacher::class, 'teacher_sections');
+        return $this->belongsToMany(Teacher::class, 'teacher_sections', 'section_id', 'teacher_id');
     }
 
     public function students()
     {
-        return $this->belongsToMany(Student::class, 'enrollments');
+        return $this->belongsToMany(Student::class, 'enrollments', 'section_id', 'student_id');
     }
 
-    /**
-     * Get the schedules for this section.
-     */
     public function schedules()
     {
         return $this->hasMany(Schedule::class, 'section_id');
@@ -55,28 +42,19 @@ class CourseSection extends Model
 
     public function evaluations()
     {
-        return $this->hasMany(Evaluation::class);
+        return $this->hasMany(Evaluation::class, 'section_id');
     }
 
-    /**
-     * Get the assignments for this section.
-     */
     public function assignments()
     {
         return $this->hasMany(Assignment::class, 'section_id');
     }
 
-    /**
-     * Get the course materials for this section.
-     */
     public function courseMaterials()
     {
         return $this->hasMany(CourseMaterial::class, 'section_id');
     }
 
-    /**
-     * Get the class sessions for this section.
-     */
     public function classSessions()
     {
         return $this->hasMany(ClassSession::class, 'section_id');

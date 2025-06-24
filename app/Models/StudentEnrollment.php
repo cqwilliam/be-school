@@ -5,30 +5,29 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Attendance extends Model
+class StudentEnrollment extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'teacher_id',
         'student_id',
-        'class_session_id',
+        'section_period_id',
         'status',
-        'justification',
     ];
+
 
     public function student()
     {
         return $this->belongsTo(Student::class);
     }
 
-    public function classSession()
+    public function sectionPeriod()
     {
-        return $this->belongsTo(ClassSession::class);
+        return $this->belongsTo(SectionPeriod::class, 'section_period_id');
     }
 
-    public function recordedBy()
+    public function period()
     {
-        return $this->belongsTo(User::class, 'recorded_by');
+        return $this->belongsTo(Period::class);
     }
 }

@@ -17,7 +17,7 @@ class CourseSectionController extends Controller
         if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
             return $response;
         }
-        
+
         $couseSection = CourseSection::all();
         return response()->json([
             'success' => true,
@@ -32,10 +32,8 @@ class CourseSectionController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'code' => 'required|string|max:20',
             'course_id' => 'required|exists:courses,id',
-            'classroom' => 'nullable|string|max:50',
-            'max_capacity' => 'required|integer|min:1',
+            'section_id' => 'required|exists:sections,id',
         ]);
 
         if ($validator->fails()) {
@@ -44,12 +42,10 @@ class CourseSectionController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-        
+
         $courseSection = CourseSection::create([
-            'code' => $request->code,
             'course_id' => $request->course_id,
-            'classroom' => $request->classroom,
-            'max_capacity' => $request->max_capacity,
+            'section_id' => $request->section_id,
         ]);
 
         return response()->json([
@@ -58,24 +54,24 @@ class CourseSectionController extends Controller
         ], 201);
     }
 
-    public function show($id, Request $request)
+    public function show($section_id, Request $request)
     {
-        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
             return $response;
         }
 
-        $courseSection = CourseSection::find($id);
+        $section = CourseSection::find($section_id);
 
-        if (!$courseSection) {
+        if (!$section) {
             return response()->json([
                 'success' => false,
-                'message' => 'Course Section not found'
+                'message' => 'Sección no encontrada'
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $courseSection
+            'data' => $section
         ]);
     }
 
@@ -92,10 +88,8 @@ class CourseSectionController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'code' => 'string|max:20',
             'course_id' => 'exists:courses,id',
-            'classroom' => 'nullable|string|max:50',
-            'max_capacity' => 'integer|min:1',
+            'section_id' => 'exists:sections,id',
         ]);
 
         if ($validator->fails()) {
@@ -106,10 +100,8 @@ class CourseSectionController extends Controller
         }
 
         $courseSection->update($request->only([
-            'code',
             'course_id',
-            'classroom',
-            'max_capacity',
+            'section_id',
         ]));
 
         return response()->json([
@@ -118,7 +110,6 @@ class CourseSectionController extends Controller
         ]);
     }
 
-    // Eliminar un course section con manejo de excepción
     public function destroy($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {

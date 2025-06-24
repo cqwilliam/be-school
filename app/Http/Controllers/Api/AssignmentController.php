@@ -26,7 +26,6 @@ class AssignmentController extends Controller
         ]);
     }
 
-    // Crear una nueva tarea
     public function store(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
@@ -34,12 +33,11 @@ class AssignmentController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'section_id' => 'required|exists:course_sections,id',
+            'teacher_id' => 'required|exists:teachers,id',
+            'section_period_id' => 'required|exists:section_periods,id',
             'title' => 'required|string|max:100',
             'description' => 'nullable|string',
-            'published_at' => 'nullable|date',
             'due_date' => 'required|date|after:published_at',
-            'published_by' => 'required|exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -51,12 +49,11 @@ class AssignmentController extends Controller
 
 
         $assignments = Assignment::create([
-            'section_id' => $request->section_id,
+            'teacher_id' => $request->teacher_id,
+            'section_period_id' => $request->section_period_id,
             'title' => $request->title,
             'description' => $request->description,
-            'published_at' => $request->published_at,
             'due_date' => $request->due_date,
-            'published_by' => $request->published_by,
         ]);
 
         return response()->json([
@@ -65,7 +62,6 @@ class AssignmentController extends Controller
         ], 201);
     }
 
-    // Mostrar una tarea específica
     public function show($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
@@ -87,7 +83,6 @@ class AssignmentController extends Controller
         ]);
     }
 
-    // Actualizar una tarea
     public function update(Request $request, $id)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
@@ -104,11 +99,11 @@ class AssignmentController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
+            'teacher_id' => 'exists:teachers,id',
+            'section_period_id' => 'exists:section_periods,id',
             'title' => 'string|max:100',
             'description' => 'nullable|string',
-            'published_at' => 'nullable|date',
             'due_date' => 'date|after:published_at',
-            'published_by' => 'exists:users,id',
         ]);
 
         if ($validator->fails()) {
@@ -119,11 +114,11 @@ class AssignmentController extends Controller
         }
 
         $assignment->update($request->only([
+            'teacher_id',
+            'section_period_id',
             'title',
             'description',
-            'published_at',
             'due_date',
-            'published_by'
         ]));
 
         return response()->json([
@@ -132,7 +127,6 @@ class AssignmentController extends Controller
         ]);
     }
 
-    // Eliminar una tarea
     public function destroy($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
@@ -153,6 +147,32 @@ class AssignmentController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Task deleted successfully'
+        ]);
+    }
+
+
+    public function getBySectionId($section_id, Request $request)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
+            return $response;
+        }
+
+        $validator = Validator::make(['section_id' => $section_id], [
+            'section_id' => 'required|exists:course_sections,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $assignments = Assignment::where('section_id', $section_id)->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $assignments
         ]);
     }
 }

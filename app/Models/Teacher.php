@@ -23,6 +23,10 @@ class Teacher extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function teacher(){
+        return $this->belongsTo(Teacher::class, 'teacher_id');
+    }
+
     /**
      * Secciones en las que enseña.
      */

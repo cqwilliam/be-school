@@ -10,11 +10,10 @@ class Announcement extends Model
     use HasFactory;
 
     protected $fillable = [
-        'section_id',
+        'user_id',
         'title',
         'content',
         'target',
-        'published_by',
     ];
 
     public const TARGET_GENERAL = 'General';
@@ -54,11 +53,10 @@ class Announcement extends Model
     public static function rules(bool $updating = false): array
     {
         return [
-            'section_id' => 'nullable|exists:course_sections,id',
+            'user_id' => ($updating ? 'sometimes|' : 'required|') . 'exists:users,id',
             'title' => ($updating ? 'sometimes|' : 'required|') . 'string|max:255',
             'content' => ($updating ? 'sometimes|' : 'required|') . 'string',
             'target' => ($updating ? 'sometimes|' : 'required|') . 'in:' . implode(',', self::getTargets()),
-            'published_by' => ($updating ? 'sometimes|' : 'required|') . 'exists:users,id',
         ];
     }
 }

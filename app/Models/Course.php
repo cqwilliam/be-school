@@ -13,45 +13,29 @@ class Course extends Model
         'name',
         'code',
         'description',
-        'credits',
-        'academic_period_id',
     ];
 
-    /**
-     * Get the academic period this course belongs to.
-     */
     public function academicPeriod()
     {
-        return $this->belongsTo(AcademicPeriod::class);
+        return $this->belongsTo(Period::class, 'period_id');
     }
 
-    /**
-     * Get the sections of the course.
-     */
-    public function sections()
+    public function courseSections()
     {
-        return $this->hasMany(CourseSection::class);
+        return $this->hasMany(CourseSection::class, 'section_id');
     }
 
-    /**
-     * Get the evaluations of the course.
-     */
     public function evaluations()
     {
-        return $this->hasMany(Evaluation::class);
+        return $this->hasMany(Evaluation::class, 'evaluation_id');
     }
 
-    /**
-     * Get the assignments of the course.
-     */
     public function assignments()
     {
-        return $this->hasMany(Assignment::class);
+        return $this->hasMany(Assignment::class, 'assignment_id');
     }
 
-    /**
-     * Get the course materials.
-     */
+
     public function courseMaterials()
     {
         return $this->hasMany(CourseMaterial::class);

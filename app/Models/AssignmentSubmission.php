@@ -14,31 +14,20 @@ class AssignmentSubmission extends Model
         'student_id',
         'file_url',
         'comment',
-        'submitted_at',
         'grade',
         'feedback',
-        'graded_by',
     ];
 
-    /**
-     * La tarea a la que corresponde esta entrega.
-     */
     public function assignment()
     {
         return $this->belongsTo(Assignment::class);
     }
 
-    /**
-     * El estudiante que realizó esta entrega.
-     */
     public function student()
     {
         return $this->belongsTo(Student::class);
     }
 
-    /**
-     * El usuario que calificó esta entrega.
-     */
     public function gradedBy()
     {
         return $this->belongsTo(User::class, 'graded_by');

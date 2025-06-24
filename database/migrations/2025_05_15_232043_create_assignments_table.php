@@ -15,12 +15,11 @@ class CreateAssignmentsTable extends Migration
     {
         Schema::create('assignments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('section_id')->constrained('course_sections');
+            $table->foreignId('teacher_id')->constrained('teachers');
+            $table->foreignId('section_period_id')->constrained('section_periods');
             $table->string('title', 100);
             $table->text('description')->nullable();
-            $table->dateTime('published_at')->useCurrent();
             $table->dateTime('due_date');
-            $table->foreignId('published_by')->constrained('users');
             $table->timestamps();
         });
     }

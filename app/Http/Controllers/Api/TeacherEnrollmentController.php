@@ -4,24 +4,24 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\RoleCheck;
-use App\Models\TeacherSection;
+use App\Models\TeacherEnrollment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class TeacherSectionController extends Controller
+class TeacherEnrollmentController extends Controller
 {
     use RoleCheck;
-    // Listar todas las asignaciones teacher-section
+
     public function index(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
             return $response;
         }
 
-        $teacherSection = TeacherSection::all();
+        $teacherEnrollment = TeacherEnrollment::all();
         return response()->json([
             'success' => true,
-            'data' => $teacherSection
+            'data' => $teacherEnrollment
         ]);
     }
 
@@ -32,38 +32,37 @@ class TeacherSectionController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'section_id' => 'required|exists:course_sections,id',
             'teacher_id' => 'required|exists:teachers,id',
-            'is_primary' => 'boolean',
+            'section_period_id' => 'required|exists:sections_periods,id',
+
         ]);
 
-       if ($validator->fails()) {
+        if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-        $teacherSection = TeacherSection::create([
-            'section_id' => $request->section_id,
+        $teacherEnrollment = TeacherEnrollment::create([
             'teacher_id' => $request->teacher_id,
-            'is_primary' => $request->is_primary ?? false,
+            'section_period_id' => $request->section_period_id,
         ]);
 
         return response()->json([
             'success' => true,
-            'data' => $teacherSection
+            'data' => $teacherEnrollment
         ], 201);
     }
 
     public function show($id, Request $request)
     {
-        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Docente', 'Estudiante', 'Apoderado'])) {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
             return $response;
         }
 
-        $teacherSection = TeacherSection::find($id);
-        
-        if (!$teacherSection) {
+        $teacherEnrollment = TeacherEnrollment::find($id);
+
+        if (!$teacherEnrollment) {
             return response()->json([
                 'success' => false,
                 'message' => 'teacher section not found'
@@ -72,7 +71,7 @@ class TeacherSectionController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $teacherSection
+            'data' => $teacherEnrollment
         ]);
     }
 
@@ -82,19 +81,18 @@ class TeacherSectionController extends Controller
             return $response;
         }
 
-        $teacherSection = TeacherSection::find($id);
-        
-        if (!$teacherSection) {
+        $teacherEnrollment = TeacherEnrollment::find($id);
+
+        if (!$teacherEnrollment) {
             return response()->json([
                 'success' => false,
-                'message' => 'teacherSection not found'
+                'message' => 'teacherEnrollment not found'
             ], 404);
         }
 
         $validator = Validator::make($request->all(), [
-            'section_id' => 'exists:course_sections,id',
             'teacher_id' => 'exists:teachers,id',
-            'is_primary' => 'boolean',
+            'section_period_id' => 'exists:sections_periods,id',
         ]);
 
         if ($validator->fails()) {
@@ -104,39 +102,37 @@ class TeacherSectionController extends Controller
             ], 422);
         }
 
-        $teacherSection->update($request->only([
-            'section_id',
+        $teacherEnrollment->update($request->only([
             'teacher_id',
-            'is_primary'
+            'section_period_id',
         ]));
 
         return response()->json([
             'success' => true,
-            'data' => $teacherSection
+            'data' => $teacherEnrollment
         ]);
     }
 
-    // Eliminar asignación
     public function destroy($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
             return $response;
         }
 
-        $teacherSection = TeacherSection::find($id);
-        
-        if (!$teacherSection) {
+        $teacherEnrollment = TeacherEnrollment::find($id);
+
+        if (!$teacherEnrollment) {
             return response()->json([
                 'success' => false,
-                'message' => 'teacherSection not found'
+                'message' => 'teacherEnrollment not found'
             ], 404);
         }
 
-        $teacherSection->delete();
+        $teacherEnrollment->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'teacherSection deleted successfully'
+            'message' => 'teacherEnrollment deleted successfully'
         ]);
     }
 }

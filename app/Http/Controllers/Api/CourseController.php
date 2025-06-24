@@ -5,17 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\Course;
+use App\Models\Enrollment;
+use App\Models\TeacherSection;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 
 
 class CourseController extends Controller
 {
     use RoleCheck;
-    /**
-     * List all courses with their academic period.
-     */
+
     public function index(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
@@ -29,10 +28,6 @@ class CourseController extends Controller
         ]);
     }
 
-    /**
-     * Create a new course.
-     * 
-     */
     public function store(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
@@ -43,8 +38,6 @@ class CourseController extends Controller
             'code' => 'required|string|max:20|unique:courses,code',
             'name' => 'required|string|max:100',
             'description' => 'nullable|string',
-            'credits' => 'required|integer|min:0',
-            'academic_period_id' => 'required|exists:academic_periods,id',
         ]);
 
         if ($validator->fails()) {
@@ -58,8 +51,6 @@ class CourseController extends Controller
             'code' => $request->code,
             'name' => $request->name,
             'description' => $request->description,
-            'credits' => $request->credits,
-            'academic_period_id' => $request->academic_period_id,
         ]);
 
         return response()->json([
@@ -68,9 +59,6 @@ class CourseController extends Controller
         ], 201);
     }
 
-    /**
-     * Show a specific course with its relations.
-     */
     public function show($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
@@ -92,9 +80,6 @@ class CourseController extends Controller
         ]);
     }
 
-    /**
-     * Update a specific course.
-     */
     public function update(Request $request, $id)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
@@ -114,8 +99,6 @@ class CourseController extends Controller
             'code' => 'string|max:20|unique:courses,code',
             'name' => 'string|max:100',
             'description' => 'nullable|string',
-            'credits' => 'integer|min:0',
-            'academic_period_id' => 'exists:academic_periods,id',
         ]);
 
         if ($validator->fails()) {
@@ -129,8 +112,6 @@ class CourseController extends Controller
             'code' => $request->code,
             'name' => $request->name,
             'description' => $request->description,
-            'credits' => $request->credits,
-            'academic_period_id' => $request->academic_period_id,
         ]);
 
         return response()->json([
@@ -165,4 +146,48 @@ class CourseController extends Controller
             'message' => 'Course deleted successfully'
         ]);
     }
+    // public function getStudentCourses($student_id, Request $request)
+    // {
+    //     if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+    //         return $response;
+    //     }
+
+    //     $courses = Enrollment::with([
+    //         'courseSection.course',
+    //         'courseSection.teachers.teacher.user',
+    //         'academicPeriod'
+    //     ])
+    //         ->where('student_id', $student_id)
+    //         ->whereHas('academicPeriod', function ($query) {
+    //             $query->where('active', true);
+    //         })
+    //         ->get();
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'data' => $courses
+    //     ]);
+    // }
+
+    // public function getTeacherCourses($teacher_id, Request $request)
+    // {
+    //     if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+    //         return $response;
+    //     }
+
+    //     $courses = TeacherSection::with([
+    //         'courseSection.course',
+    //         'courseSection.course.academicPeriod'
+    //     ])
+    //         ->where('teacher_id', $teacher_id)
+    //         ->whereHas('courseSection.course.academicPeriod', function ($query) {
+    //             $query->where('active', true);
+    //         })
+    //         ->get();
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'data' => $courses
+    //     ]);
+    // }
 }

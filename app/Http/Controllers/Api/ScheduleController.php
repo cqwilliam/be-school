@@ -32,12 +32,11 @@ class ScheduleController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'section_id' => 'required|exists:course_sections,id',
+            'section_period_id' => 'required|exists:section_periods,id',
+            'course_id' => 'required|exists:courses,id',
             'day_of_week' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
-            'start_date' => 'required|date_format:H:i',
-            'end_date' => 'required|date_format:H:i|after:start_date',
-            'is_recurring' => 'required|boolean',
-            'specific_date' => 'nullable|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_date',
         ]);
 
         if ($validator->fails()) {
@@ -48,12 +47,11 @@ class ScheduleController extends Controller
         }
 
         $schedule = Schedule::create([
-            'section_id' => $request->section_id,
+            'section_period_id' => $request->section_period_id,
+            'course_id' => $request->course_id,
             'day_of_week' => $request->day_of_week,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'is_recurring' => $request->is_recurring,
-            'specific_date' => $request->specific_date,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
         ]);
 
         return response()->json([
@@ -101,12 +99,11 @@ class ScheduleController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'section_id' => 'exists:course_sections,id',
+            'section_period_id' => 'exists:section_periods,id',
+            'course_id' => 'exists:courses,id',
             'day_of_week' => 'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
-            'start_date' => 'required|date_format:H:i',
-            'end_date' => 'required|date_format:H:i|after:start_date',
-            'is_recurring' => 'boolean',
-            'specific_date' => 'nullable|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_date',
         ]);
 
         if ($validator->fails()) {
@@ -117,12 +114,11 @@ class ScheduleController extends Controller
         }
 
         $schedule->update([
-            'section_id' => $request->section_id,
+            'section_period_id' => $request->section_period_id,
+            'course_id' => $request->course_id,
             'day_of_week' => $request->day_of_week,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'is_recurring' => $request->is_recurring,
-            'specific_date' => $request->specific_date,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
         ]);
 
         return response()->json([
@@ -152,6 +148,59 @@ class ScheduleController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'schedule deleted successfully'
+        ]);
+    }
+    
+    public function getStudentSchedule($student_id, Request $request)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+            return $response;
+        }
+
+        $schedule = Schedule::with([
+            'courseSection.course',
+            'courseSection.teachers.teacher.user'
+        ])
+            ->whereHas('courseSection.enrollments', function ($query) use ($student_id) {
+                $query->where('student_id', $student_id);
+            })
+            ->whereHas('courseSection.course.academicPeriod', function ($query) {
+                $query->where('active', true);
+            })
+            ->where('is_recurring', true)
+            ->orderBy('day_of_week')
+            ->orderBy('start_date')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $schedule
+        ]);
+    }
+
+    public function getTeacherSchedule($teacher_id, Request $request)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+            return $response;
+        }
+
+        $schedule = Schedule::with([
+            'courseSection.course'
+        ])
+            ->whereHas('courseSection.teachers', function ($query) use ($teacher_id) {
+                $query->where('teacher_id', $teacher_id);
+            })
+            ->whereHas('courseSection.course.academicPeriod', function ($query) {
+                $query->where('active', true);
+            })
+            ->where('is_recurring', true)
+            ->orderBy('day_of_week')
+            ->orderBy('start_date')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $schedule
         ]);
     }
 }

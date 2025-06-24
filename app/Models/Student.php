@@ -14,8 +14,6 @@ class Student extends Model
 
     protected $fillable = [
         'user_id',
-        'grade',
-        'section',
     ];
 
     // === RELATIONS ===
@@ -31,9 +29,11 @@ class Student extends Model
     /**
      * The guardians associated with the student.
      */
-    public function guardians(): BelongsToMany
+    public function guardians()
     {
-        return $this->belongsToMany(Guardian::class, 'students_guardians');
+        return $this->belongsToMany(Guardian::class, 'student_guardians')
+            ->withPivot('relationship')
+            ->withTimestamps();
     }
 
     /**

@@ -19,10 +19,8 @@ class CreateAssignmentSubmissionsTable extends Migration
             $table->foreignId('student_id')->constrained('students')->onDelete('cascade');
             $table->string('file_url')->nullable();
             $table->text('comment')->nullable();
-            $table->dateTime('submitted_at')->useCurrent();
             $table->decimal('grade', 5, 2)->nullable();
             $table->text('feedback')->nullable();
-            $table->foreignId('graded_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
             $table->unique(['assignment_id', 'student_id']);
         });
