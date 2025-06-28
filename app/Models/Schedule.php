@@ -4,27 +4,34 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\SectionCourse;
 
 class Schedule extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'section_period_id',
+        'period_section_id',
         'course_id',
-        'day_of_week',
+        'teacher_user_id',
+        'day_of_week', 
         'start_time',
         'end_time',
     ];
 
 
-    public function section()
+    public function periodSection()
     {
-        return $this->belongsTo(CourseSection::class);
+        return $this->belongsTo(PeriodSection::class, 'period_section_id');
     }
     
-    public function courseSection()
+    public function course()
     {
-        return $this->belongsTo(CourseSection::class);
+        return $this->belongsTo(Course::class, 'course_id');
+    }
+
+    public function teacher()
+    {
+        return $this->belongsTo(User::class, 'teacher_user_id');
     }
 }

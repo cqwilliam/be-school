@@ -33,7 +33,7 @@ class EvaluationGradeController extends Controller
 
         $validator = Validator::make($request->all(), [
             'evaluation_id' => 'required|exists:evaluations,id',
-            'student_id' => 'required|exists:students,id',
+            'student_user_id' => 'required|exists:users,id',
             'grade' => 'required|numeric|min:0|max:20',
             'comment' => 'nullable|string',
         ]);
@@ -47,7 +47,7 @@ class EvaluationGradeController extends Controller
 
         $grades = EvaluationGrade::create([
             'evaluation_id' => $request->evaluation_id,
-            'student_id' => $request->student_id,
+            'student_user_id' => $request->student_user_id,
             'grade' => $request->grade,
             'comment' => $request->comment,
         ]);
@@ -58,9 +58,6 @@ class EvaluationGradeController extends Controller
         ], 201);
     }
 
-    /**
-     * Display the specified grade.
-     */
     public function show($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
@@ -82,9 +79,6 @@ class EvaluationGradeController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified grade.
-     */
     public function update(Request $request, $id)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
@@ -102,7 +96,7 @@ class EvaluationGradeController extends Controller
 
         $validator = Validator::make($request->all(), [
             'evaluation_id' => 'exists:evaluations,id',
-            'student_id' => 'exists:students,id',
+            'student_user_id' => 'exists:users,id',
             'grade' => 'numeric|min:0|max:20',
             'comment' => 'nullable|string',
         ]);
@@ -116,7 +110,7 @@ class EvaluationGradeController extends Controller
 
         $grade->update($request->only([
             'evaluation_id',
-            'student_id',
+            'student_user_id',
             'grade',
             'comment',
         ]));
@@ -163,7 +157,7 @@ class EvaluationGradeController extends Controller
             'evaluation.evaluationType',
             'gradedBy'
         ])
-            ->where('student_id', $student_id)
+            ->where('student_user_id', $student_id)
             ->whereHas('evaluation.academicPeriod', function ($query) {
                 $query->where('active', true);
             })
@@ -189,7 +183,7 @@ class EvaluationGradeController extends Controller
             ->whereHas('evaluation', function ($query) use ($section_id) {
                 $query->where('section_id', $section_id);
             })
-            ->where('student_id', $student_id)
+            ->where('student_user_id', $student_id)
             ->orderBy('graded_at', 'desc')
             ->get();
 

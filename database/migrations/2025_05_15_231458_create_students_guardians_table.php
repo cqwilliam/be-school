@@ -15,14 +15,13 @@ class CreateStudentsGuardiansTable extends Migration
     {
         Schema::create('students_guardians', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('student_id')->constrained('students')->onDelete('cascade');
-            $table->foreignId('guardian_id')->constrained('guardians')->onDelete('cascade');
+            $table->foreignId('student_user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('guardian_user_id')->constrained('users')->onDelete('cascade');
             $table->string('relationship', 100)->nullable(); // Father, Mother, Legal Guardian
             $table->timestamps();
 
-            $table->unique(['student_id', 'guardian_id']); // Asegura que cada estudiante tenga un solo apoderado
+            $table->unique(['student_user_id', 'guardian_user_id']); // Asegura que cada estudiante tenga un solo apoderado
         });
-
     }
 
     /**

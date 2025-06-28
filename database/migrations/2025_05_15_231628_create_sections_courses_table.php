@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCoursesSectionsTable extends Migration
+class CreateSectionsCoursesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateCoursesSectionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('courses_sections', function (Blueprint $table) {
+        Schema::create('sections_courses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('course_id')->constrained('courses');
-            $table->foreignId('section_id')->nullable()->constrained('sections');
+            $table->foreignId('section_id')->constrained('sections');
             $table->timestamps();
 
             $table->unique(['course_id', 'section_id']);
@@ -30,6 +30,6 @@ class CreateCoursesSectionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('courses_sections');
+        Schema::dropIfExists('sections_courses');
     }
 }

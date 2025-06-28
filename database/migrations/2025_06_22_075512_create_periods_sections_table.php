@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateGuardiansTable extends Migration
+class CreatePeriodsSectionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,13 @@ class CreateGuardiansTable extends Migration
      */
     public function up()
     {
-        Schema::create('guardians', function (Blueprint $table) {
+        Schema::create('periods_sections', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('section_id')->constrained('sections');
+            $table->foreignId('period_id')->constrained('periods');
             $table->timestamps();
+
+            $table->unique(['section_id', 'period_id']);
         });
     }
 
@@ -27,6 +30,6 @@ class CreateGuardiansTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('guardians');
+        Schema::dropIfExists('periods_sections');
     }
 }

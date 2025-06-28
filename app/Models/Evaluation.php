@@ -4,14 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\SectionCourse;
 
 class Evaluation extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'section_period_id',
+        'period_section_id',
         'evaluation_type_id',
+        'teacher_user_id',
         'title',
         'description',
         'due_date'
@@ -21,10 +23,9 @@ class Evaluation extends Model
         'weight' => 'float',
     ];
     
-    public static function validateTotalWeight($newWeight, $sectionId, $periodId, $excludeId = null)
+    public static function validateTotalWeight($newWeight, $periodSectionId, $excludeId = null)
     {
-        $total = self::where('section_id', $sectionId)
-            ->where('academic_period_id', $periodId)
+        $total = self::where('period_section_id', $periodSectionId)
             ->when($excludeId, fn($q) => $q->where('id', '!=', $excludeId))
             ->sum('weight');
 
@@ -38,9 +39,9 @@ class Evaluation extends Model
     /**
      * Get the section this evaluation belongs to.
      */
-    public function section()
+    public function periodSection()
     {
-        return $this->belongsTo(CourseSection::class, 'section_id');
+        return $this->belongsTo(PeriodSection::class, 'period_section_id');
     }
 
     /**
@@ -54,9 +55,9 @@ class Evaluation extends Model
     /**
      * Get the academic period of the evaluation.
      */
-    public function academicPeriod()
+    public function teacher()
     {
-        return $this->belongsTo(Period::class, 'academic_period_id');
+        return $this->belongsTo(User::class, 'teacher_user_id');
     }
 
     /**
@@ -69,6 +70,6 @@ class Evaluation extends Model
 
     public function courseSection()
     {
-        return $this->belongsTo(CourseSection::class);
+        return $this->belongsTo(SectionCourse::class);
     }
 }

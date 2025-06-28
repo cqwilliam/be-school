@@ -3,147 +3,132 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Traits\RoleCheck;
-use App\Models\SectionPeriod;
+use App\Models\PeriodSectionUser;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class SectionPeriodController extends Controller
+class PeriodSectionUserController extends Controller
 {
     use RoleCheck;
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
             return $response;
         }
-        $sectionPeriod = SectionPeriod::all();
+
+        $periodSectionUsers = PeriodSectionUser::all();
         return response()->json([
             'success' => true,
-            'data' => $sectionPeriod
+            'data' => $periodSectionUsers
         ]);
     }
 
-    /**
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
             return $response;
         }
+
         $validator = Validator::make($request->all(), [
-            'section_id' => 'required|integer|exists:sections,id',
-            'period_id' => 'required|integer|exists:periods,id',
+            'user_id' => 'required|integer|exists:users,id',
+            'period_section_id' => 'required|integer|exists:periods,id',
+            'status' => 'required|string|max:255'
         ]);
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-        $sectionPeriod = SectionPeriod::create([
-            'section_id' => $request->section_id,
-            'period_id' => $request->period_id,
-        ]);
 
+        $periodSectionUser = PeriodSectionUser::create([
+            'user_id' => $request->user_id,
+            'period_section_id' => $request->period_section_id,
+            'status' => $request->status
+        ]);
         return response()->json([
             'success' => true,
-            'data' => $sectionPeriod
-        ], 201);
+            'data' => $periodSectionUser
+        ]);
     }
 
-    /**
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id, Request $request)
     {
-        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
             return $response;
         }
-        $sectionPeriod = SectionPeriod::find($id);
-        if (!$sectionPeriod) {
+
+        $periodSectionUser = PeriodSectionUser::find($id);
+        if (!$periodSectionUser) {
             return response()->json([
                 'success' => false,
-                'message'
+                'message' => 'PeriodSectionUser not found'
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $sectionPeriod
+            'data' => $periodSectionUser
         ]);
     }
 
-    /**
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
+    public function update($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
             return $response;
         }
-        $sectionPeriod = SectionPeriod::find($id);
-        if (!$sectionPeriod) {
+        $periodSectionUser = PeriodSectionUser::find($id);
+        if (!$periodSectionUser) {
             return response()->json([
                 'success' => false,
-                'message' => 'SectionPeriod not found'
+                'message' => 'PeriodSectionUser not found'
             ], 404);
         }
         $validator = Validator::make($request->all(), [
-            'section_id' => 'required|integer|exists:sections,id',
-            'period_id' => 'required|integer|exists:periods,id',
+            'user_id' => 'required|integer|exists:users,id',
+            'period_section_id' => 'required|integer|exists:periods,id',
+            'status' => 'required|string|max:255'
         ]);
+
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-        $sectionPeriod->update([
-            'section_id' => $request->section_id,
-            'period_id' => $request->period_id,
+
+        $periodSectionUser->update([
+            'user_id' => $request->user_id,
+            'period_section_id' => $request->period_section_id,
+            'status' => $request->status
         ]);
+        
         return response()->json([
             'success' => true,
-            'data' => $sectionPeriod
-        ], 200);
+            'data' => $periodSectionUser
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
             return $response;
         }
+        $periodSectionUser = PeriodSectionUser::find($id);
 
-        $sectionPeriod = SectionPeriod::find($id);
-
-        if (!$sectionPeriod) {
+        if (!$periodSectionUser) {
             return response()->json([
                 'success' => false,
-                'message' => 'SectionPeriod not found'
+                'message' => 'PeriodSectionUser not found'
             ], 404);
         }
-
-        $sectionPeriod->delete();
-        
+        $periodSectionUser->delete();
         return response()->json([
             'success' => true,
-            'message' => 'SectionPeriod deleted successfully'
-        ], 200);
+            'message' => 'PeriodSectionUser deleted'
+        ]);
     }
 }

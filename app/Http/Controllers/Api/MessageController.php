@@ -32,8 +32,8 @@ class MessageController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'sender_id' => 'required|exists:users,id',
-            'recipient_id' => 'required|exists:users,id',
+            'sender_user_id' => 'required|exists:users,id',
+            'target_user_id' => 'required|exists:users,id',
             'content' => 'required|string',
             'is_read' => 'boolean',
         ]);
@@ -46,8 +46,8 @@ class MessageController extends Controller
         }
 
         $message = Message::create([
-            'sender_id' => $request->sender_id,
-            'recipient_id' => $request->recipient_id,
+            'sender_user_id' => $request->sender_user_id,
+            'target_user_id' => $request->target_user_id,
             'content' => $request->content,
             'is_read' => $request->is_read ?? false,
         ]);
@@ -95,8 +95,8 @@ class MessageController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'sender_id' => 'exists:users,id',
-            'recipient_id' => 'exists:users,id',
+            'sender_user_id' => 'exists:users,id',
+            'target_user_id' => 'exists:users,id',
             'content' => 'string',
             'is_read' => 'boolean',
         ]);
@@ -109,8 +109,8 @@ class MessageController extends Controller
         }
 
         $message->update($request->only([
-            'sender_id',
-            'recipient_id',
+            'sender_user_id',
+            'target_user_id',
             'content',
             'is_read',
         ]));

@@ -4,24 +4,24 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\RoleCheck;
-use App\Models\TeacherEnrollment;
+use App\Models\SectionCourse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class TeacherEnrollmentController extends Controller
+class SectionCourseController extends Controller
 {
-    use RoleCheck;
+    use  RoleCheck;
 
     public function index(Request $request)
     {
-        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
             return $response;
         }
 
-        $teacherEnrollment = TeacherEnrollment::all();
+        $sectionCourse = SectionCourse::all();
         return response()->json([
             'success' => true,
-            'data' => $teacherEnrollment
+            'data' => $sectionCourse
         ]);
     }
 
@@ -32,9 +32,8 @@ class TeacherEnrollmentController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'teacher_id' => 'required|exists:teachers,id',
-            'section_period_id' => 'required|exists:sections_periods,id',
-
+            'course_id' => 'required|exists:courses,id',
+            'section_id' => 'required|exists:sections,id',
         ]);
 
         if ($validator->fails()) {
@@ -43,35 +42,36 @@ class TeacherEnrollmentController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-        $teacherEnrollment = TeacherEnrollment::create([
-            'teacher_id' => $request->teacher_id,
-            'section_period_id' => $request->section_period_id,
+
+        $courseSection = SectionCourse::create([
+            'course_id' => $request->course_id,
+            'section_id' => $request->section_id,
         ]);
 
         return response()->json([
             'success' => true,
-            'data' => $teacherEnrollment
+            'data' => $courseSection
         ], 201);
     }
 
-    public function show($id, Request $request)
+    public function show($section_id, Request $request)
     {
-        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
             return $response;
         }
 
-        $teacherEnrollment = TeacherEnrollment::find($id);
+        $section = SectionCourse::find($section_id);
 
-        if (!$teacherEnrollment) {
+        if (!$section) {
             return response()->json([
                 'success' => false,
-                'message' => 'teacher section not found'
+                'message' => 'Sección no encontrada'
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $teacherEnrollment
+            'data' => $section
         ]);
     }
 
@@ -81,18 +81,15 @@ class TeacherEnrollmentController extends Controller
             return $response;
         }
 
-        $teacherEnrollment = TeacherEnrollment::find($id);
+        $courseSection = SectionCourse::find($id);
 
-        if (!$teacherEnrollment) {
-            return response()->json([
-                'success' => false,
-                'message' => 'teacherEnrollment not found'
-            ], 404);
+        if (!$courseSection) {
+            return response()->json(['message' => 'Course Section not found'], 404);
         }
 
         $validator = Validator::make($request->all(), [
-            'teacher_id' => 'exists:teachers,id',
-            'section_period_id' => 'exists:sections_periods,id',
+            'course_id' => 'exists:courses,id',
+            'section_id' => 'exists:sections,id',
         ]);
 
         if ($validator->fails()) {
@@ -102,14 +99,14 @@ class TeacherEnrollmentController extends Controller
             ], 422);
         }
 
-        $teacherEnrollment->update($request->only([
-            'teacher_id',
-            'section_period_id',
+        $courseSection->update($request->only([
+            'course_id',
+            'section_id',
         ]));
 
         return response()->json([
             'success' => true,
-            'data' => $teacherEnrollment
+            'data' => $courseSection
         ]);
     }
 
@@ -119,20 +116,20 @@ class TeacherEnrollmentController extends Controller
             return $response;
         }
 
-        $teacherEnrollment = TeacherEnrollment::find($id);
+        $courseSection = SectionCourse::find($id);
 
-        if (!$teacherEnrollment) {
+        if (!$courseSection) {
             return response()->json([
                 'success' => false,
-                'message' => 'teacherEnrollment not found'
+                'message' => 'Couse Section not found'
             ], 404);
         }
 
-        $teacherEnrollment->delete();
+        $courseSection->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'teacherEnrollment deleted successfully'
+            'message' => 'Section Course deleted successfully'
         ]);
     }
 }

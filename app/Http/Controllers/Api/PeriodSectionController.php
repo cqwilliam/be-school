@@ -1,155 +1,149 @@
 <?php
 
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\Traits\RoleCheck;
-use App\Models\AssignmentSubmission;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Traits\RoleCheck;
+use App\Models\PeriodSection;
 use Illuminate\Support\Facades\Validator;
 
-class AssignmentSubmissionController extends Controller
+class PeriodSectionController extends Controller
 {
     use RoleCheck;
-    
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
             return $response;
         }
-
-        $submissions = AssignmentSubmission::all();
+        $sectionPeriod = PeriodSection::all();
         return response()->json([
             'success' => true,
-            'data' => $submissions
+            'data' => $sectionPeriod
         ]);
     }
 
+    /**
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
             return $response;
         }
-
         $validator = Validator::make($request->all(), [
-            'assignment_id' => 'required|exists:assignments,id',
-            'student_user_id' => 'required|exists:users,id',
-            'file_url' => 'nullable|string',
-            'comment' => 'nullable|string',
-            'grade' => 'nullable|numeric|min:0|max:20',
-            'feedback' => 'nullable|string',
+            'section_id' => 'required|integer|exists:sections,id',
+            'period_id' => 'required|integer|exists:periods,id',
         ]);
-
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-        
-        $submissions = AssignmentSubmission::create([
-            'assignment_id' => $request->assignment_id,
-            'student_user_id' => $request->student_user_id,
-            'file_url' => $request->file_url,
-            'comment' => $request->comment,
-            'grade' => $request->grade,
-            'feedback' => $request->feedback,
+        $sectionPeriod = PeriodSection::create([
+            'section_id' => $request->section_id,
+            'period_id' => $request->period_id,
         ]);
 
         return response()->json([
             'success' => true,
-            'data' => $submissions
+            'data' => $sectionPeriod
         ], 201);
     }
 
+    /**
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function show($id, Request $request)
     {
-        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
             return $response;
         }
-
-        $submissions = AssignmentSubmission::find($id);
-
-        if (!$submissions) {
+        $sectionPeriod = PeriodSection::find($id);
+        if (!$sectionPeriod) {
             return response()->json([
                 'success' => false,
-                'message' => 'submissions not found'
+                'message'
             ], 404);
         }
 
         return response()->json([
             'success' => true,
-            'data' => $submissions
+            'data' => $sectionPeriod
         ]);
     }
 
+    /**
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, $id)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
             return $response;
         }
-
-        $submission = AssignmentSubmission::find($id);
-
-        if (!$submission) {
+        $sectionPeriod = PeriodSection::find($id);
+        if (!$sectionPeriod) {
             return response()->json([
                 'success' => false,
-                'message' => 'submission not found'
+                'message' => 'PeriodSection not found'
             ], 404);
         }
-
         $validator = Validator::make($request->all(), [
-            'assignment_id' => 'exists:assignments,id',
-            'student_user_id' => 'exists:users,id',
-            'file_url' => 'nullable|string',
-            'comment' => 'nullable|string',
-            'grade' => 'nullable|numeric|min:0|max:20',
-            'feedback' => 'nullable|string',
+            'section_id' => 'required|integer|exists:sections,id',
+            'period_id' => 'required|integer|exists:periods,id',
         ]);
-
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'errors' => $validator->errors()
             ], 422);
         }
-
-        $submission->update($request->only([
-            'assignment_id',
-            'student_user_id',
-            'file_url',
-            'comment',
-            'grade',
-            'feedback',
-        ]));
-
+        $sectionPeriod->update([
+            'section_id' => $request->section_id,
+            'period_id' => $request->period_id,
+        ]);
         return response()->json([
             'success' => true,
-            'data' => $submission
-        ]);
+            'data' => $sectionPeriod
+        ], 200);
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function destroy($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
             return $response;
         }
 
-        $submission = AssignmentSubmission::find($id);
+        $sectionPeriod = PeriodSection::find($id);
 
-        if (!$submission) {
+        if (!$sectionPeriod) {
             return response()->json([
                 'success' => false,
-                'message' => 'submission not found'
+                'message' => 'PeriodSection not found'
             ], 404);
         }
 
-        $submission->delete();
-
+        $sectionPeriod->delete();
+        
         return response()->json([
             'success' => true,
-            'message' => 'submission deleted successfully'
-        ]);
+            'message' => 'PeriodSection deleted successfully'
+        ], 200);
     }
 }

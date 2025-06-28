@@ -32,8 +32,8 @@ class AttendanceController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'teacher_id' => 'required|exists:teachers,id',
-            'student_id' => 'required|exists:students,id',
+            'teacher_user_id' => 'required|exists:users,id',
+            'student_user_id' => 'required|exists:users,id',
             'class_session_id' => 'required|exists:class_sessions,id',
             'status' => 'required|in:present,absent,late,justified',
             'justification' => 'nullable|string',
@@ -47,8 +47,8 @@ class AttendanceController extends Controller
         }
         
         $attendances = Attendance::create([
-            'teacher_id' => $request->teacher_id,
-            'student_id' => $request->student_id,
+            'teacher_user_id' => $request->teacher_user_id,
+            'student_user_id' => $request->student_user_id,
             'class_session_id' => $request->class_session_id,
             'status' => $request->status,
             'justification' => $request->justification,
@@ -97,9 +97,9 @@ class AttendanceController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'teacher_id' => 'exists:teachers,id',
+            'teacher_user_id' => 'exists:users,id',
             'class_session_id' => 'exists:class_sessions,id',
-            'student_id' => 'exists:students,id',
+            'student_user_id' => 'exists:users,id',
             'status' => 'in:present,absent,late,justified',
             'justification' => 'nullable|string',
         ]);
@@ -112,8 +112,8 @@ class AttendanceController extends Controller
         }
 
         $attendance->update($request->only([
-            'teacher_id',
-            'student_id',
+            'teacher_user_id',
+            'student_user_id',
             'class_session_id',
             'status',
             'justification',

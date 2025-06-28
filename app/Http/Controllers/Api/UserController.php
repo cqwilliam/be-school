@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    // use RoleCheck;
+    use RoleCheck;
 
     public function index(Request $request)
     {

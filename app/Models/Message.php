@@ -10,12 +10,10 @@ class Message extends Model
     use HasFactory;
 
     protected $fillable = [
-        'sender_id',
-        'recipient_id',
+        'sender_user_id',
+        'target_user_id',
         'content',
-        'sent_at',
-        'is_read',
-        'read_at'
+        'is_read'
     ];
 
 
@@ -24,15 +22,15 @@ class Message extends Model
      */
     public function sender()
     {
-        return $this->belongsTo(User::class, 'sender_id');
+        return $this->belongsTo(User::class, 'sender_user_id');
     }
 
     /**
      * El usuario que recibió el mensaje.
      */
-    public function recipient()
+    public function target()
     {
-        return $this->belongsTo(User::class, 'recipient_id');
+        return $this->belongsTo(User::class, 'target_user_id');
     }
 
     /**
@@ -41,12 +39,10 @@ class Message extends Model
     public static function rules(bool $updating = false): array
     {
         return [
-            'sender_id' => ($updating ? 'sometimes|' : 'required|') . 'exists:users,id',
-            'recipient_id' => ($updating ? 'sometimes|' : 'required|') . 'exists:users,id|different:sender_id',
+            'sender_user_id' => ($updating ? 'sometimes|' : 'required|') . 'exists:users,id',
+            'target_user_id' => ($updating ? 'sometimes|' : 'required|') . 'exists:users,id|different:sender_user_id',
             'content' => ($updating ? 'sometimes|' : 'required|') . 'string',
-            'sent_at' => 'nullable|date',
             'is_read' => 'sometimes|boolean',
-            'read_at' => 'nullable|date',
         ];
     }
 }

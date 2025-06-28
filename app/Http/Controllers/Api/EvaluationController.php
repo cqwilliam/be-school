@@ -32,8 +32,9 @@ class EvaluationController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'section_period_id' => 'required|exists:section_periods,id',
+            'period_section_id' => 'required|exists:periods_sections,id',
             'evaluation_type_id' => 'required|exists:evaluation_types,id',
+            'teacher_user_id' => 'required|exists:users,id',
             'title' => 'required|string|max:100',
             'description' => 'nullable|string',
             'due_date' => 'nullable|date|after_or_equal:date',
@@ -47,8 +48,9 @@ class EvaluationController extends Controller
         }
 
         $evaluations = Evaluation::create([
-            'section_period_id' => $request->section_period_id,
+            'period_section_id' => $request->period_section_id,
             'evaluation_type_id' => $request->evaluation_type_id,
+            'teacher_user_id' => $request->teacher_user_id,
             'title' => $request->title,
             'description' => $request->description,
             'due_date' => $request->due_date,
@@ -97,8 +99,9 @@ class EvaluationController extends Controller
             ], 404);
         }
         $validator = Validator::make($request->all(), [
-            'section_period_id' => 'exists:section_periods,id',
+            'period_section_id' => 'exists:periods_sections,id',
             'evaluation_type_id' => 'exists:evaluation_types,id',
+            'teacher_user_id' => 'exists:users,id',
             'title' => 'string|max:100',
             'description' => 'nullable|string',
             'due_date' => 'nullable|date|after_or_equal:date',
@@ -112,8 +115,9 @@ class EvaluationController extends Controller
         }
 
         $evaluation->update($request->only([
-            'section_period_id',
+            'period_section_id',
             'evaluation_type_id',
+            'teacher_user_id',
             'title',
             'description',
             'due_date'

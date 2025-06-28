@@ -11,18 +11,19 @@ class EvaluationGrade extends Model
 
     protected $fillable = [
         'evaluation_id',
-        'student_id',
+        'student_user_id',
         'grade',
         'comment',
+        'graded_by'
     ];
 
     protected $casts = [
         'grade' => 'float',
     ];
 
-    public function scopeForStudent($query, $studentId)
+    public function scopeForStudent($query, $studentUserId)
     {
-        return $query->where('student_id', $studentId);
+        return $query->where('student_user_id', $studentUserId);
     }
 
     public function scopeForEvaluation($query, $evaluationId)
@@ -37,7 +38,7 @@ class EvaluationGrade extends Model
 
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(User::class, 'student_user_id');
     }
 
     public function evaluation()

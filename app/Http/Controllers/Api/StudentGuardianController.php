@@ -11,9 +11,7 @@ use Illuminate\Support\Facades\Validator;
 class StudentGuardianController extends Controller
 {
     use RoleCheck;
-    /**
-     * Mostrar todas las relaciones estudiante-apoderado.
-     */
+
     public function index(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
@@ -27,9 +25,6 @@ class StudentGuardianController extends Controller
         ]);
     }
 
-    /**
-     * Crear una nueva relación estudiante-apoderado.
-     */
     public function store(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
@@ -37,8 +32,8 @@ class StudentGuardianController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'student_id' => 'required|exists:students,id',
-            'guardian_id' => 'required|exists:guardians,id',
+            'student_user_id' => 'required|exists:users,id',
+            'guardian_user_id' => 'required|exists:users,id',
             'relationship' => 'nullable|string|max:100',
         ]);
 
@@ -50,8 +45,8 @@ class StudentGuardianController extends Controller
         }
 
         $studentGuardian = StudentGuardian::create([
-            'student_id' => $request->student_id,
-            'guardian_id' => $request->guardian_id,
+            'student_user_id' => $request->student_user_id,
+            'guardian_user_id' => $request->guardian_user_id,
             'relationship' => $request->relationship,
         ]);
 
@@ -61,9 +56,6 @@ class StudentGuardianController extends Controller
         ], 201);
     }
 
-    /**
-     * Mostrar una relación específica.
-     */
     public function show($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
@@ -85,9 +77,6 @@ class StudentGuardianController extends Controller
         ]);
     }
 
-    /**
-     * Actualizar una relación específica.
-     */
     public function update(Request $request, $id)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {
@@ -103,8 +92,8 @@ class StudentGuardianController extends Controller
             ], 404);
         }
         $validator = Validator::make($request->all(), [
-            'student_id' => 'required|exists:students,id',
-            'guardian_id' => 'required|exists:guardians,id',
+            'student_user_id' => 'required|exists:users,id',
+            'guardian_user_id' => 'required|exists:users,id',
             'relationship' => 'nullable|string|max:100',
         ]);
 
@@ -116,8 +105,8 @@ class StudentGuardianController extends Controller
         }
 
         $student_guardian->update([
-            'student_id' => $request->student_id,
-            'guardian_id' => $request->guardian_id,
+            'student_user_id' => $request->student_user_id,
+            'guardian_user_id' => $request->guardian_user_id,
             'relationship' => $request->relationship,
         ]);
 
@@ -128,9 +117,6 @@ class StudentGuardianController extends Controller
         ], 200);
     }
 
-    /**
-     * Eliminar una relación.
-     */
     public function destroy($id, Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador'])) {

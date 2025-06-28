@@ -14,24 +14,24 @@ class StudentGuardian extends Model
 
     // Campos que se pueden asignar masivamente
     protected $fillable = [
-        'student_id',
-        'guardian_id',
+        'student_user_id',
+        'guardian_user_id',
         'relationship',
     ];
 
     /**
-     * Relación con el estudiante.
+     * Relación con el estudiante (usuario).
      */
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(User::class, 'student_user_id');
     }
 
     /**
-     * Relación con el apoderado.
+     * Relación con el apoderado (usuario).
      */
     public function guardian()
     {
-        return $this->belongsTo(Guardian::class);
+        return $this->belongsTo(User::class, 'guardian_user_id');
     }
 }

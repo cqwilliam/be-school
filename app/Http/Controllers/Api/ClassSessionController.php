@@ -33,8 +33,8 @@ class ClassSessionController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'teacher_id' => 'required|exists:users,id',
-            'section_period_id' => 'required|exists:course_sections,id',
+            'teacher_user_id' => 'required|exists:users,id',
+            'period_section_id' => 'required|exists:periods_sections,id',
             'topic' => 'nullable|string',
             'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
@@ -49,8 +49,8 @@ class ClassSessionController extends Controller
         }
         
         $classSession = ClassSession::create([
-            'teacher_id' => $request->teacher_id,
-            'section_period_id' => $request->section_period_id,
+            'teacher_user_id' => $request->teacher_user_id,
+            'period_section_id' => $request->period_section_id,
             'topic' => $request->topic,
             'date' => $request->date,
             'start_time' => $request->start_time,
@@ -100,8 +100,8 @@ class ClassSessionController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'teacher_id' => 'required|exists:users,id',
-            'section_period_id' => 'required|exists:course_sections,id',
+            'teacher_user_id' => 'required|exists:users,id',
+            'period_section_id' => 'required|exists:periods_sections,id',
             'topic' => 'nullable|string',
             'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
@@ -117,8 +117,8 @@ class ClassSessionController extends Controller
         }
 
         $classSession->update([
-            'teacher_id' => $request->teacher_id,
-            'section_period_id' => $request->section_period_id,
+            'teacher_user_id' => $request->teacher_user_id,
+            'period_section_id' => $request->period_section_id,
             'topic' => $request->topic,
             'date' => $request->date,
             'start_time' => $request->start_time,

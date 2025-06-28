@@ -32,11 +32,12 @@ class ScheduleController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'section_period_id' => 'required|exists:section_periods,id',
+            'period_section_id' => 'required|exists:periods_sections,id',
             'course_id' => 'required|exists:courses,id',
+            'teacher_user_id' => 'required|exists:users,id',
             'day_of_week' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
             'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_date',
+            'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
 
         if ($validator->fails()) {
@@ -47,8 +48,9 @@ class ScheduleController extends Controller
         }
 
         $schedule = Schedule::create([
-            'section_period_id' => $request->section_period_id,
+            'period_section_id' => $request->period_section_id,
             'course_id' => $request->course_id,
+            'teacher_user_id' => $request->teacher_user_id,
             'day_of_week' => $request->day_of_week,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
@@ -99,11 +101,12 @@ class ScheduleController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'section_period_id' => 'exists:section_periods,id',
+            'period_section_id' => 'exists:periods_sections,id',
             'course_id' => 'exists:courses,id',
+            'teacher_user_id' => 'exists:users,id',
             'day_of_week' => 'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
             'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_date',
+            'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
 
         if ($validator->fails()) {
@@ -114,8 +117,9 @@ class ScheduleController extends Controller
         }
 
         $schedule->update([
-            'section_period_id' => $request->section_period_id,
+            'period_section_id' => $request->period_section_id,
             'course_id' => $request->course_id,
+            'teacher_user_id' => $request->teacher_user_id,
             'day_of_week' => $request->day_of_week,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
@@ -159,9 +163,9 @@ class ScheduleController extends Controller
 
         $schedule = Schedule::with([
             'courseSection.course',
-            'courseSection.teachers.teacher.user'
+            'periodSection.teachers.teacher.user'
         ])
-            ->whereHas('courseSection.enrollments', function ($query) use ($student_id) {
+            ->whereHas('periodSection.enrollments', function ($query) use ($student_id) {
                 $query->where('student_id', $student_id);
             })
             ->whereHas('courseSection.course.academicPeriod', function ($query) {
@@ -185,9 +189,9 @@ class ScheduleController extends Controller
         }
 
         $schedule = Schedule::with([
-            'courseSection.course'
+            'periodSection.course'
         ])
-            ->whereHas('courseSection.teachers', function ($query) use ($teacher_id) {
+            ->whereHas('periodSection.teachers', function ($query) use ($teacher_id) {
                 $query->where('teacher_id', $teacher_id);
             })
             ->whereHas('courseSection.course.academicPeriod', function ($query) {

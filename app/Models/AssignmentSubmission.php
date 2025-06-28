@@ -11,7 +11,7 @@ class AssignmentSubmission extends Model
 
     protected $fillable = [
         'assignment_id',
-        'student_id',
+        'student_user_id',
         'file_url',
         'comment',
         'grade',
@@ -25,7 +25,7 @@ class AssignmentSubmission extends Model
 
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(User::class, 'student_user_id');
     }
 
     public function gradedBy()

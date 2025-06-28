@@ -33,8 +33,8 @@ class AssignmentController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'teacher_id' => 'required|exists:teachers,id',
-            'section_period_id' => 'required|exists:section_periods,id',
+            'teacher_user_id' => 'required|exists:users,id',
+            'period_section_id' => 'required|exists:periods_sections,id',
             'title' => 'required|string|max:100',
             'description' => 'nullable|string',
             'due_date' => 'required|date|after:published_at',
@@ -49,8 +49,8 @@ class AssignmentController extends Controller
 
 
         $assignments = Assignment::create([
-            'teacher_id' => $request->teacher_id,
-            'section_period_id' => $request->section_period_id,
+            'teacher_user_id' => $request->teacher_user_id,
+            'period_section_id' => $request->period_section_id,
             'title' => $request->title,
             'description' => $request->description,
             'due_date' => $request->due_date,
@@ -99,8 +99,8 @@ class AssignmentController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'teacher_id' => 'exists:teachers,id',
-            'section_period_id' => 'exists:section_periods,id',
+            'teacher_user_id' => 'exists:users,id',
+            'period_section_id' => 'exists:periods_sections,id',
             'title' => 'string|max:100',
             'description' => 'nullable|string',
             'due_date' => 'date|after:published_at',
@@ -114,8 +114,8 @@ class AssignmentController extends Controller
         }
 
         $assignment->update($request->only([
-            'teacher_id',
-            'section_period_id',
+            'teacher_user_id',
+            'period_section_id',
             'title',
             'description',
             'due_date',
@@ -168,7 +168,7 @@ class AssignmentController extends Controller
             ], 422);
         }
 
-        $assignments = Assignment::where('section_id', $section_id)->get();
+        $assignments = Assignment::where('period_section_id', $section_id)->get();
 
         return response()->json([
             'success' => true,

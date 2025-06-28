@@ -15,8 +15,8 @@ class CreateClassSessionsTable extends Migration
     {
         Schema::create('class_sessions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('teacher_id')->constrained('teachers');
-            $table->foreignId('section_period_id')->constrained('section_periods');
+            $table->foreignId('teacher_user_id')->constrained('users');
+            $table->foreignId('period_section_id')->constrained('periods_sections');
             $table->string('topic')->nullable();
             $table->date('date');
             $table->time('start_time');

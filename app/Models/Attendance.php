@@ -10,8 +10,8 @@ class Attendance extends Model
     use HasFactory;
 
     protected $fillable = [
-        'teacher_id',
-        'student_id',
+        'teacher_user_id',
+        'student_user_id',
         'class_session_id',
         'status',
         'justification',
@@ -19,7 +19,12 @@ class Attendance extends Model
 
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(User::class, 'student_user_id');
+    }
+
+    public function teacher()
+    {
+        return $this->belongsTo(User::class, 'teacher_user_id');
     }
 
     public function classSession()
@@ -27,8 +32,4 @@ class Attendance extends Model
         return $this->belongsTo(ClassSession::class);
     }
 
-    public function recordedBy()
-    {
-        return $this->belongsTo(User::class, 'recorded_by');
-    }
 }

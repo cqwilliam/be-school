@@ -16,10 +16,10 @@ class CreateEvaluationGradesTable extends Migration
         Schema::create('evaluation_grades', function (Blueprint $table) {
             $table->id();
             $table->foreignId('evaluation_id')->constrained('evaluations');
-            $table->foreignId('student_id')->constrained('students');
+            $table->foreignId('student_user_id')->constrained('users');
             $table->decimal('grade', 4, 2); // valores de 0.00 a 99.99
             $table->text('comment')->nullable();
-            $table->unique(['evaluation_id', 'student_id']);
+            $table->unique(['evaluation_id', 'student_user_id']);
             $table->timestamps();
         });
     }

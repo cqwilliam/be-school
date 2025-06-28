@@ -15,8 +15,8 @@ class CreateAssignmentsTable extends Migration
     {
         Schema::create('assignments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('teacher_id')->constrained('teachers');
-            $table->foreignId('section_period_id')->constrained('section_periods');
+            $table->foreignId('teacher_user_id')->constrained('users');
+            $table->foreignId('period_section_id')->constrained('periods_sections');
             $table->string('title', 100);
             $table->text('description')->nullable();
             $table->dateTime('due_date');

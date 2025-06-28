@@ -10,8 +10,8 @@ class ClassSession extends Model
     use HasFactory;
 
     protected $fillable = [
-        'teacher_id',
-        'section_period_id',
+        'teacher_user_id',
+        'period_section_id',
         'topic',
         'date',
         'start_time',
@@ -29,14 +29,14 @@ class ClassSession extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function courseSection()
+    public function periodSection()
     {
-        return $this->belongsTo(CourseSection::class);
+        return $this->belongsTo(PeriodSection::class, 'period_section_id');
     }
 
-    public function createdBy()
+    public function teacher()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'teacher_user_id');
     }
 
     public function attendances()
