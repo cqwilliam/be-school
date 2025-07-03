@@ -49,9 +49,14 @@ class CourseMaterial extends Model
         return $rules;
     }
 
-    public function courseSection()
+    public function course()
     {
-        return $this->belongsTo(CourseSection::class, 'section_id');
+        return $this->belongsTo(Course::class, 'course_id');
+    }
+
+    public function section()
+    {
+        return $this->belongsTo(Section::class, 'section_id');
     }
 
     public function publishedBy()

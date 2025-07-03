@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\RoleCheck;
+use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -194,4 +195,93 @@ class UserController extends Controller
             'data' => $courses
         ]);
     }
+
+    public function getTeacherCourses(Request $request, $teacher_user_id)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+            return $response;
+        }
+
+        $teacher = User::find($teacher_user_id);
+
+        if (!$teacher) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Profesor no encontrado'
+            ], 404);
+        }
+
+        $courses = Schedule::where('teacher_user_id', $teacher->id)
+            ->with(['course', 'periodSection.section'])
+            ->get()
+            ->pluck('course')
+            ->unique('id')
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $courses
+        ]);
+    }
+    public function getStudentSections(Request $request, $student_user_id)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Estudiante'])) {
+            return $response;
+        }
+
+        $user = User::find($student_user_id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no encontrado'
+            ], 404);
+        }
+
+        $sections = $user->periodSectionUsers()
+            ->with(['periodSection.section'])
+            ->get()
+            ->pluck('periodSection.section')
+            ->unique('id')
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $sections
+        ]);
+    }
+
+    public function getStudentCourseMaterials(Request $request, $student_user_id)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Estudiante'])) {
+            return $response;
+        }
+
+        $user = User::find($student_user_id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no encontrado'
+            ], 404);
+        }
+
+        $materials = $user->periodSectionUsers()
+            ->with(['periodSection.section.sectionCourses.course.courseMaterials'])
+            ->get()
+            ->flatMap(function ($periodSectionUser) {
+                return $periodSectionUser->periodSection->section->sectionCourses
+                    ->flatMap(function ($sectionCourse) {
+                        return $sectionCourse->course->courseMaterials;
+                    });
+            })
+            ->unique('id')
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $materials
+        ]);
+    }
+
 }
