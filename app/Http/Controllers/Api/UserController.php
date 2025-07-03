@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\RoleCheck;
+use App\Models\Course;
 use App\Models\Schedule;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -284,4 +285,56 @@ class UserController extends Controller
         ]);
     }
 
+    public function getCourseTeachers(Request $request, $user_id)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
+            return $response;
+        }
+
+        $user = User::find($user_id);
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no encontrado'
+            ], 404);
+        }
+
+        if ($user->role_name === 'Estudiante') {
+            $courses = $user->periodSectionUsers()
+                ->with(['periodSection.section.sectionCourses.course.schedules.teacher'])
+                ->get()
+                ->flatMap(function ($periodSectionUser) {
+                    return $periodSectionUser->periodSection->section->sectionCourses
+                        ->pluck('course');
+                })
+                ->unique('id');
+        } else { 
+            $courses = Course::whereHas('schedules', function($query) use ($user) {
+                $query->where('teacher_user_id', $user->id);
+            })->get();
+        }
+
+        $coursesWithTeachers = $courses->map(function ($course) {
+            return [
+                'course_id' => $course->id,
+                'course_name' => $course->name,
+                'teachers' => $course->schedules
+                    ->pluck('teacher')
+                    ->unique('id')
+                    ->values()
+                    ->map(function ($teacher) {
+                        return [
+                            'teacher_id' => $teacher->id,
+                            'teacher_name' => $teacher->full_name,
+                            'teacher_email' => $teacher->email
+                        ];
+                    })
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $coursesWithTeachers
+        ]);
+    }
 }

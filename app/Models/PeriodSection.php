@@ -25,5 +25,9 @@ class PeriodSection extends Model
     {
         return $this->belongsTo(Period::class);
     }
-}
 
+    public function evaluations()
+    {
+        return $this->hasMany(Evaluation::class, 'period_section_id');
+    }
+}
