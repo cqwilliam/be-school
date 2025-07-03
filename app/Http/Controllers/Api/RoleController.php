@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\Validator;
 
 class RoleController extends Controller
 {
-    /**
-     * Display a listing of all roles.
-     */
     public function index()
     {
         $roles = Role::all();
@@ -22,9 +19,6 @@ class RoleController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created role in storage.
-     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -38,7 +32,7 @@ class RoleController extends Controller
             ], 422);
         }
 
-        
+
         $role = Role::create([
             'name' => $request->name,
         ]);
@@ -49,9 +43,6 @@ class RoleController extends Controller
         ], 201);
     }
 
-    /**
-     * Display the specified role.
-     */
     public function show($id)
     {
         $role = Role::find($id);
@@ -69,9 +60,6 @@ class RoleController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified role in storage.
-     */
     public function update(Request $request, $id)
     {
         $role = Role::find($id);
@@ -103,9 +91,6 @@ class RoleController extends Controller
         ]);
     }
 
-    /**
-     * Remove the specified role from storage.
-     */
     public function destroy($id)
     {
         $role = Role::find($id);

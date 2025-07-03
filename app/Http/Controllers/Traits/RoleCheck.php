@@ -11,7 +11,7 @@ trait RoleCheck
     {
         $user = $request->auth_user;
 
-        $user->load('role');
+        // $user->load('role');
 
         if (!in_array($user->role->name ?? '', $allowedRoles)) {
             return response()->json([

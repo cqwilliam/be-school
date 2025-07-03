@@ -33,7 +33,7 @@ class PeriodSectionUserController extends Controller
 
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|integer|exists:users,id',
-            'period_section_id' => 'required|integer|exists:periods,id',
+            'period_section_id' => 'required|integer|exists:periods_sections,id',
             'status' => 'required|string|max:255'
         ]);
 
@@ -89,7 +89,7 @@ class PeriodSectionUserController extends Controller
         }
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|integer|exists:users,id',
-            'period_section_id' => 'required|integer|exists:periods,id',
+            'period_section_id' => 'required|integer|exists:periods_sections,id',
             'status' => 'required|string|max:255'
         ]);
 

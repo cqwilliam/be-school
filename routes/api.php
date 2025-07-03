@@ -28,10 +28,12 @@ use Illuminate\Http\Request;
 Route::post('/sign-in', [AuthController::class, 'sign_in'])->name('sign_in');
 
 Route::middleware(JWTMiddleware::class)->group(function () {
-    
+
     Route::get('/current-user', function (Request $request) {
         return response()->json($request->auth_user);
     });
+
+    Route::get('/students/{student_user_id}/courses', [UserController::class, 'getStudentCourses']);
 
     Route::apiResource('roles', RoleController::class);
     Route::apiResource('users', UserController::class);

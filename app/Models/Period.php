@@ -21,11 +21,6 @@ class Period extends Model
         return $this->hasMany(Course::class);
     }
 
-    public function enrollments()
-    {
-        return $this->hasMany(StudentEnrollment::class);
-    }
-
     public function evaluations()
     {
         return $this->hasMany(Evaluation::class);

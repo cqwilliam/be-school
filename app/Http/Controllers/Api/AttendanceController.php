@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Validator;
 class AttendanceController extends Controller
 {
     use RoleCheck;
-    // Listar asistencias
     public function index(Request $request)
     {
         if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
@@ -45,7 +44,7 @@ class AttendanceController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-        
+
         $attendances = Attendance::create([
             'teacher_user_id' => $request->teacher_user_id,
             'student_user_id' => $request->student_user_id,

@@ -163,4 +163,35 @@ class UserController extends Controller
             'message' => 'User deleted successfully'
         ]);
     }
+
+    public function getStudentCourses(Request $request, $student_user_id)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Estudiante'])) {
+            return $response;
+        }
+
+        $user = User::find($student_user_id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'user not found'
+            ], 404);
+        }
+
+        $courses = $user->periodSectionUsers()
+            ->with(['periodSection.section.sectionCourses.course'])
+            ->get()
+            ->flatMap(function ($periodSectionUser) {
+                return $periodSectionUser->periodSection->section->sectionCourses
+                    ->pluck('course');
+            })
+            ->unique('id')
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $courses
+        ]);
+    }
 }

@@ -43,6 +43,31 @@ class User extends Authenticatable
         'age_name',
     ];
 
+    // Solo para obtener nombres de guardianes con relación
+    public function getGuardiansNamesAttribute()
+    {
+        return $this->guardians->map(function ($guardian) {
+            return $guardian->full_name . ' (' . $guardian->pivot->relationship . ')';
+        })->implode(', ');
+    }
+
+    // Solo para obtener teléfonos de guardianes
+    public function getGuardiansPhonesAttribute()
+    {
+        return $this->guardians->pluck('phone')->filter()->implode(', ');
+    }
+
+    // Información completa del primer guardián (si solo necesitas uno)
+    public function getPrimaryGuardianAttribute()
+    {
+        $guardian = $this->guardians->first();
+        return $guardian ? [
+            'name' => $guardian->full_name,
+            'phone' => $guardian->phone,
+            'relationship' => $guardian->pivot->relationship
+        ] : null;
+    }
+
     public function getFullNameAttribute()
     {
         return "{$this->first_name} {$this->last_name}";
@@ -62,21 +87,6 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
-    }
-
-    public function student()
-    {
-        return $this->hasOne(Student::class);
-    }
-
-    public function teacher()
-    {
-        return $this->hasOne(Teacher::class);
-    }
-
-    public function guardian()
-    {
-        return $this->hasOne(Guardian::class);
     }
 
     public function announcements()
@@ -122,5 +132,34 @@ class User extends Authenticatable
     public function assignmentSubmissions()
     {
         return $this->hasMany(AssignmentSubmission::class, 'graded_by');
+    }
+
+    public function studentGuardianRelationsAsStudent()
+    {
+        return $this->hasMany(StudentGuardian::class, 'student_user_id');
+    }
+
+    public function studentGuardianRelationsAsGuardian()
+    {
+        return $this->hasMany(StudentGuardian::class, 'guardian_user_id');
+    }
+
+    public function guardians()
+    {
+        return $this->belongsToMany(User::class, 'students_guardians', 'student_user_id', 'guardian_user_id')
+            ->withPivot('relationship')
+            ->withTimestamps();
+    }
+
+    public function students()
+    {
+        return $this->belongsToMany(User::class, 'students_guardians', 'guardian_user_id', 'student_user_id')
+            ->withPivot('relationship')
+            ->withTimestamps();
+    }
+
+    public function periodSectionUsers()
+    {
+        return $this->hasMany(PeriodSectionUser::class, 'user_id');
     }
 }

@@ -12,4 +12,9 @@ class Section extends Model
     protected $fillable = [
         'name',
     ];
+
+    public function sectionCourses()
+    {
+        return $this->hasMany(SectionCourse::class, 'section_id');
+    }
 }

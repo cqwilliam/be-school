@@ -22,6 +22,7 @@ class CreatePeriodsSectionsTable extends Migration
             $table->unique(['section_id', 'period_id']);
         });
     }
+    
 
     /**
      * Reverse the migrations.
