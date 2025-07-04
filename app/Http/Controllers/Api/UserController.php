@@ -403,4 +403,50 @@ class UserController extends Controller
             'data' => $attendances
         ]);
     }
+
+    public function getMessages(Request $request, $student_user_id)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Estudiante'])) {
+            return $response;
+        }
+
+        $user = User::find($student_user_id);
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Estudiante no encontrado'
+            ], 404);
+        }
+
+        $messages = \App\Models\Message::where(function($query) use ($student_user_id) {
+                $query->where('sender_user_id', $student_user_id)
+                      ->orWhere('target_user_id', $student_user_id);
+            })
+            ->with(['sender', 'target'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($message) {
+                return [
+                    'id' => $message->id,
+                    'content' => $message->content,
+                    'is_read' => $message->is_read,
+                    'created_at' => $message->created_at,
+                    'sender' => [
+                        'id' => $message->sender->id,
+                        'name' => $message->sender->full_name
+                    ],
+                    'target' => [
+                        'id' => $message->target->id,
+                        'name' => $message->target->full_name
+                    ]
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $messages
+        ]);
+    }
+
+    public function getTeacherCourseMaterial(){}
 }

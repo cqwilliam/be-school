@@ -41,6 +41,7 @@ Route::middleware(JWTMiddleware::class)->group(function () {
     //Route::get('/students/{student_user_id}/evaluation-grades', [UserController::class, 'getStudentEvaluationGrades']);
     Route::get('/students/{teacher_user_id}/course-teachers', [UserController::class, 'getCourseTeachers']);
     Route::get('/students/{student_user_id}/attendances', [UserController::class, 'getTeacherAttendances']);
+    Route::get('/users/{student_user_id}/messages', [UserController::class, 'getMessages']);
 
     Route::apiResource('roles', RoleController::class);
     Route::apiResource('users', UserController::class);
