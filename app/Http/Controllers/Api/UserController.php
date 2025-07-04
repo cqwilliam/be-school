@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\RoleCheck;
+use App\Models\ClassSession;
 use App\Models\Course;
 use App\Models\Schedule;
 use App\Models\User;
@@ -335,6 +336,71 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'data' => $coursesWithTeachers
+        ]);
+    }
+
+    public function getStudentAttendances(Request $request, $student_user_id)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Estudiante'])) {
+            return $response;
+        }
+        $user = User::find($student_user_id);
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no encontrado'
+            ], 404);
+        }
+        $attendances = ClassSession::whereHas('attendances', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })
+            ->with(['attendances', 'periodSection.section'])
+            ->get();
+            return response()->json([
+            'success' => true,
+            'data' => $attendances
+        ]);
+        
+    }
+
+    public function getTeacherAttendances(Request $request, $teacher_user_id)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+            return $response;
+        }
+
+        $teacher = User::find($teacher_user_id);
+        if (!$teacher) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Docente no encontrado'
+            ], 404);
+        }
+
+        $attendances = ClassSession::where('teacher_user_id', $teacher_user_id)
+            ->with(['attendances', 'periodSection.section'])
+            ->get()
+            ->flatMap(function ($classSession) {
+                return $classSession->attendances->map(function ($attendance) use ($classSession) {
+                    return [
+                        'attendance_id' => $attendance->id,
+                        'student_id' => $attendance->student_user_id,
+                        'student_name' => $attendance->student->full_name,
+                        'status' => $attendance->status,
+                        'justification' => $attendance->justification,
+                        'date' => $classSession->date,
+                        'start_time' => $classSession->start_time,
+                        'end_time' => $classSession->end_time,
+                        'topic' => $classSession->topic,
+                        'section_name' => $classSession->periodSection->section->name,
+                        'period_section_id' => $classSession->period_section_id
+                    ];
+                });
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $attendances
         ]);
     }
 }

@@ -30,4 +30,9 @@ class PeriodSection extends Model
     {
         return $this->hasMany(Evaluation::class, 'period_section_id');
     }
+
+    public function classSessions()
+    {
+        return $this->hasMany(ClassSession::class, 'period_section_id');
+    }
 }
