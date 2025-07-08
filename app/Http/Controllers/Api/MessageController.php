@@ -81,7 +81,7 @@ class MessageController extends Controller
 
     public function update(Request $request, $id)
     {
-        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
             return $response;
         }
 
@@ -123,7 +123,7 @@ class MessageController extends Controller
 
     public function destroy($id, Request $request)
     {
-        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante'])) {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente', 'Estudiante', 'Apoderado'])) {
             return $response;
         }
 

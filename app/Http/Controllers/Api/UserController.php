@@ -7,6 +7,7 @@ use App\Http\Controllers\Traits\RoleCheck;
 use App\Models\ClassSession;
 use App\Models\Course;
 use App\Models\Schedule;
+use App\Models\Section;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -309,8 +310,8 @@ class UserController extends Controller
                         ->pluck('course');
                 })
                 ->unique('id');
-        } else { 
-            $courses = Course::whereHas('schedules', function($query) use ($user) {
+        } else {
+            $courses = Course::whereHas('schedules', function ($query) use ($user) {
                 $query->where('teacher_user_id', $user->id);
             })->get();
         }
@@ -356,11 +357,10 @@ class UserController extends Controller
         })
             ->with(['attendances', 'periodSection.section'])
             ->get();
-            return response()->json([
+        return response()->json([
             'success' => true,
             'data' => $attendances
         ]);
-        
     }
 
     public function getTeacherAttendances(Request $request, $teacher_user_id)
@@ -418,10 +418,10 @@ class UserController extends Controller
             ], 404);
         }
 
-        $messages = \App\Models\Message::where(function($query) use ($student_user_id) {
-                $query->where('sender_user_id', $student_user_id)
-                      ->orWhere('target_user_id', $student_user_id);
-            })
+        $messages = \App\Models\Message::where(function ($query) use ($student_user_id) {
+            $query->where('sender_user_id', $student_user_id)
+                ->orWhere('target_user_id', $student_user_id);
+        })
             ->with(['sender', 'target'])
             ->orderBy('created_at', 'desc')
             ->get()
@@ -448,5 +448,118 @@ class UserController extends Controller
         ]);
     }
 
-    public function getTeacherCourseMaterial(){}
+    public function getTeacherCourseMaterials(Request $request, $teacher_user_id)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+            return $response;
+        }
+
+        $teacher = User::find($teacher_user_id);
+
+        if (!$teacher) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Profesor no encontrado'
+            ], 404);
+        }
+
+        $materials = Schedule::where('teacher_user_id', $teacher->id)
+            ->with(['course.courseMaterials'])
+            ->get()
+            ->flatMap(function ($schedule) {
+                return $schedule->course->courseMaterials->map(function ($material) use ($schedule) {
+                    return [
+                        'material_id' => $material->id,
+                        'course_id' => $schedule->course->id,
+                        'course_name' => $schedule->course->name,
+                        'title' => $material->title,
+                        'description' => $material->description,
+                        'type' => $material->type,
+                        'url' => $material->url
+                    ];
+                });
+            })
+            ->unique('material_id')
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $materials
+        ]);
+    }
+    public function getStudentsBySection(Request $request, $section_id)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Docente'])) {
+            return $response;
+        }
+
+        $section = Section::find($section_id);
+
+        if (!$section) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sección no encontrada'
+            ], 404);
+        }
+
+        $students = User::whereHas('periodSectionUsers', function ($query) use ($section_id) {
+            $query->whereHas('periodSection', function ($query) use ($section_id) {
+                $query->where('section_id', $section_id);
+            });
+        })->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $students
+        ]);
+    }
+
+    public function getStudentSchedules(Request $request, $student_user_id)
+    {
+        if ($response = $this->checkRole($request, ['Administrador', 'Estudiante'])) {
+            return $response;
+        }
+
+        $user = User::find($student_user_id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no encontrado'
+            ], 404);
+        }
+
+        $courses = $user->periodSectionUsers()
+            ->with(['periodSection.section.sectionCourses.course'])
+            ->get()
+            ->flatMap(function ($periodSectionUser) {
+                return $periodSectionUser->periodSection->section->sectionCourses
+                    ->pluck('course');
+            })
+            ->unique('id');
+
+        $schedules = Schedule::whereIn('course_id', $courses->pluck('id'))
+            ->with(['course', 'teacher', 'periodSection.section'])
+            ->get()
+            ->map(function ($schedule) {
+                return [
+                    'course_id' => $schedule->course->id,
+                    'course_name' => $schedule->course->name,
+                    'day_of_week' => $schedule->day_of_week,
+                    'start_time' => $schedule->start_time,
+                    'end_time' => $schedule->end_time,
+                    'section_id' => $schedule->periodSection->section->id,
+                    'section_name' => $schedule->periodSection->section->name,
+                    'teacher' => $schedule->teacher ? [
+                        'id' => $schedule->teacher->id,
+                        'name' => $schedule->teacher->full_name
+                    ] : null
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $schedules
+        ]);
+    }
 }
